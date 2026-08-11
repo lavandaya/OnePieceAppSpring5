@@ -1,0 +1,40 @@
+### Variables
+@baseUrl = http://localhost:8080
+
+### Get all characters - OK
+GET {{baseUrl}}/api/characters
+Accept: application/json
+
+### Search characters by name - OK
+GET {{baseUrl}}/api/characters?name=Luffy
+Accept: application/json
+
+### Search characters by minPower - OK
+GET {{baseUrl}}/api/characters?minPower=8
+Accept: application/json
+
+### Get single character - OK
+GET {{baseUrl}}/api/characters/1
+Accept: application/json
+
+### Get single character - Not Found
+GET {{baseUrl}}/api/characters/999
+Accept: application/json
+
+### Get single character - Not Acceptable
+GET {{baseUrl}}/api/characters/1
+Accept: application/xml
+
+### Get battles for character - OK
+GET {{baseUrl}}/api/characters/1/battles
+Accept: application/json
+
+### Get battles for character - Not Found
+GET {{baseUrl}}/api/characters/999/battles
+Accept: application/json
+
+### Delete character - No Content
+DELETE {{baseUrl}}/api/characters/6
+
+### Delete character - Not Found (already deleted above)
+DELETE {{baseUrl}}/api/characters/6

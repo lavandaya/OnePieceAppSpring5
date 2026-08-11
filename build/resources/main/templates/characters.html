@@ -32,7 +32,7 @@
     </form>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
-        <div class="col" th:each="character : ${characters}">
+        <div class="col" th:id="${'character-card-' + character.id}" th:each="character : ${characters}">
             <div class="card h-100 shadow-sm"
                  th:classappend="${character.power >= 9.0} ? 'border-warning border-2' : ''">
                 <img class="card-img-top character-img" th:src="${character.appearance}"
@@ -58,12 +58,11 @@
                        th:href="@{/characters/{id}(id=${character.id})}">
                         <i class="bi bi-eye"></i> <span th:text="#{characters.details}">View details</span>
                     </a>
-                    <form th:action="@{/characters/{id}/delete(id=${character.id})}" method="post" class="m-0">
-                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                                th:title="#{button.delete}">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete-character"
+                            th:data-character-id="${character.id}"
+                            th:title="#{button.delete}">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -72,6 +71,7 @@
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script th:src="@{/js/characterDelete.js}"></script>
 
 </body>
 </html>

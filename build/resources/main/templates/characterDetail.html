@@ -89,10 +89,18 @@
     </section>
 
     <section>
-        <h2 class="h4 mb-3" th:text="#{characterDetail.battles}">Battles</h2>
-        <div class="alert alert-secondary" th:if="${#lists.isEmpty(battles)}"
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h4 mb-0" th:text="#{characterDetail.battles}">Battles</h2>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="reloadBattlesButton"
+                    th:data-character-id="${character.id}">
+                <i class="bi bi-arrow-clockwise"></i> Reload
+            </button>
+        </div>
+        <div class="alert alert-secondary" id="battlesEmptyAlert"
+             th:classappend="${#lists.isEmpty(battles)} ? '' : 'd-none'"
              th:text="#{characterDetail.battles.empty}">No battles yet.</div>
-        <div class="table-responsive" th:unless="${#lists.isEmpty(battles)}">
+        <div class="table-responsive" id="battlesTable"
+             th:classappend="${#lists.isEmpty(battles)} ? 'd-none' : ''">
             <table class="table table-striped table-hover align-middle">
                 <thead class="table-dark">
                 <tr>
@@ -102,7 +110,7 @@
                     <th th:text="#{battles.table.winner}">Winner</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="battlesTableBody">
                 <tr th:each="battle : ${battles}">
                     <td>
                         <a th:href="@{/battles/{id}(id=${battle.id})}" th:text="${battle.name}">name</a>
@@ -119,6 +127,7 @@
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script th:src="@{/js/characterBattles.js}"></script>
 
 </body>
 </html>
