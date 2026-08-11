@@ -1,0 +1,16 @@
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: onepiece_postgres
+    environment:
+      POSTGRES_DB: onepiece_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Student_1234
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

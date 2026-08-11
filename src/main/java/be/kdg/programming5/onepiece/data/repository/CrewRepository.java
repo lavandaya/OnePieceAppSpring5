@@ -1,9 +1,10 @@
 package be.kdg.programming5.onepiece.data.repository;
 
 import be.kdg.programming5.onepiece.business.domain.Crew;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-@Profile("datajpa")
+import java.util.Optional;
+
 public interface CrewRepository extends JpaRepository<Crew, String> {
+    Optional<Crew> findByName(String name);
 }
