@@ -1,9 +1,9 @@
 package be.kdg.programming5.onepiece.business.domain;
 
-import jakarta.persistence.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "crews")
@@ -18,9 +18,6 @@ public class Crew {
     @Column(name = "ship_name", nullable = false, length = 100)
     private String shipName;
 
-    @OneToMany(mappedBy = "crew")
-    private List<Character> members = new ArrayList<>();
-
     protected Crew() {
     }
 
@@ -33,15 +30,6 @@ public class Crew {
     public String getName() { return name; }
     public boolean isHasBounty() { return hasBounty; }
     public String getShipName() { return shipName; }
-
-    public List<Character> getMembers() { return members; }
-
-    public void addCharacter(Character character) {
-        if (character != null && !members.contains(character)) {
-            members.add(character);
-            character.setCrew(this);
-        }
-    }
 
     @Override
     public String toString() {

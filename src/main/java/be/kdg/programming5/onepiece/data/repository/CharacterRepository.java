@@ -12,12 +12,14 @@ import java.util.Optional;
 
 public interface CharacterRepository extends JpaRepository<Character, Integer> {
 
+    @Query("SELECT c FROM Character c LEFT JOIN FETCH c.crew ORDER BY c.id")
     List<Character> findAllByOrderByIdAsc();
 
     @Query("SELECT c FROM Character c LEFT JOIN FETCH c.crew WHERE c.id = :id")
     Optional<Character> findByIdWithCrew(@Param("id") int id);
 
-    List<Character> findByCrew(Crew crew);
+    @Query("SELECT c FROM Character c LEFT JOIN FETCH c.crew WHERE c.crew = :crew ORDER BY c.id")
+    List<Character> findByCrew(@Param("crew") Crew crew);
 
     List<Character> findByPower(double power);
 
