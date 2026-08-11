@@ -1,7 +1,7 @@
 package be.kdg.programming5.onepiece.presentation.viewmodel;
 
-import be.kdg.programming3.onepiece.business.domain.Crew;
-import be.kdg.programming3.onepiece.business.domain.Powertype;
+import be.kdg.programming5.onepiece.business.domain.Crew;
+import be.kdg.programming5.onepiece.business.domain.Powertype;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;

@@ -1,9 +1,9 @@
 package be.kdg.programming5.onepiece.presentation.controller;
 
-import be.kdg.programming3.onepiece.business.domain.Battle;
-import be.kdg.programming3.onepiece.business.service.BattleService;
-import be.kdg.programming3.onepiece.business.service.CharacterService;
-import be.kdg.programming3.onepiece.presentation.viewmodel.BattleViewModel;
+import be.kdg.programming5.onepiece.business.domain.Battle;
+import be.kdg.programming5.onepiece.business.service.BattleService;
+import be.kdg.programming5.onepiece.business.service.CharacterService;
+import be.kdg.programming5.onepiece.presentation.viewmodel.BattleViewModel;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

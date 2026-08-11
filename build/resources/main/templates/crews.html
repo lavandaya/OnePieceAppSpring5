@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{crews.title})}"></head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container my-4">
+    <h1 class="mb-4" th:text="#{crews.heading}">Crews</h1>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th th:text="#{crews.table.name}">Name</th>
+                <th th:text="#{crews.table.ship}">Ship</th>
+                <th th:text="#{crews.table.bounty}">Bounty?</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="crew : ${crews}">
+                <td>
+                    <a th:href="@{/crews/{name}(name=${crew.name})}" th:text="${crew.name}">name</a>
+                </td>
+                <td th:text="${crew.shipName}">ship</td>
+                <td>
+                    <i class="bi bi-check-circle-fill text-success" th:if="${crew.hasBounty}"></i>
+                    <i class="bi bi-x-circle text-muted" th:unless="${crew.hasBounty}"></i>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="text-muted fst-italic" th:text="#{crews.count(${#lists.size(crews)})}">Number of crews: 0</p>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+</body>
+</html>

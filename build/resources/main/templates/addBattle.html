@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{addBattle.title})}"></head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container my-4">
+    <h1 class="mb-4" th:text="#{addBattle.heading}">Add Battle</h1>
+
+    <form class="needs-validation row g-3" novalidate th:action="@{/battles/add}" method="post"
+          th:object="${battleViewModel}">
+        <div class="col-md-6">
+            <label for="name" class="form-label" th:text="#{addBattle.label.name}">Name:</label>
+            <input type="text" class="form-control" th:field="*{name}" th:errorclass="is-invalid" required>
+            <div class="invalid-feedback">
+                <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                <span th:unless="${#fields.hasErrors('name')}" th:text="#{validation.required}">Required</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="location" class="form-label" th:text="#{addBattle.label.location}">Location:</label>
+            <input type="text" class="form-control" th:field="*{location}" th:errorclass="is-invalid" required>
+            <div class="invalid-feedback">
+                <span th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></span>
+                <span th:unless="${#fields.hasErrors('location')}" th:text="#{validation.required}">Required</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="date" class="form-label" th:text="#{addBattle.label.date}">Date and time:</label>
+            <input type="datetime-local" class="form-control" th:field="*{date}" th:errorclass="is-invalid" required>
+            <div class="invalid-feedback">
+                <span th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></span>
+                <span th:unless="${#fields.hasErrors('date')}" th:text="#{validation.required}">Required</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="winner" class="form-label" th:text="#{addBattle.label.winner}">Winner:</label>
+            <input type="text" class="form-control" th:field="*{winner}" th:errorclass="is-invalid" required>
+            <div class="invalid-feedback">
+                <span th:if="${#fields.hasErrors('winner')}" th:errors="*{winner}"></span>
+                <span th:unless="${#fields.hasErrors('winner')}" th:text="#{validation.required}">Required</span>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label" th:text="#{addBattle.label.characters}">Characters:</label>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
+                <div class="col" th:each="char : ${allCharacters}">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               th:field="*{characterIds}" th:value="${char.id}"
+                               th:id="${'char-' + char.id}">
+                        <label class="form-check-label" th:for="${'char-' + char.id}"
+                               th:text="${char.name}">name</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> <span th:text="#{button.add}">Add</span>
+            </button>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+</body>
+</html>

@@ -1,6 +1,6 @@
 package be.kdg.programming5.onepiece.presentation.controller;
 
-import be.kdg.programming3.onepiece.business.service.CharacterService;
+import be.kdg.programming5.onepiece.business.service.CharacterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;

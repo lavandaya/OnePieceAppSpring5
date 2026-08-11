@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle}">One Piece</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-ocean">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/characters}">
+            <i class="bi bi-compass"></i>
+            <span th:text="#{nav.brand}">One Piece</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#mainNav" aria-controls="mainNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/characters}">
+                        <i class="bi bi-people"></i> <span th:text="#{nav.characters}">Characters</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/battles}">
+                        <i class="bi bi-lightning"></i> <span th:text="#{nav.battles}">Battles</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/crews}">
+                        <i class="bi bi-flag"></i> <span th:text="#{nav.crews}">Crews</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/characters/add}">
+                        <i class="bi bi-person-plus"></i> <span th:text="#{nav.addCharacter}">Add Character</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/battles/add}">
+                        <i class="bi bi-plus-circle"></i> <span th:text="#{nav.addBattle}">Add Battle</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/characters/search}">
+                        <i class="bi bi-search"></i> <span th:text="#{nav.search}">Search</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/history}">
+                        <i class="bi bi-clock-history"></i> <span th:text="#{nav.history}">History</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<footer th:fragment="footer" class="bg-ocean text-light mt-auto py-3">
+    <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center">
+        <span><i class="bi bi-compass"></i> <span th:text="#{footer.author}">One Piece Project</span></span>
+        <span class="small" th:text="#{footer.text}">Made with Bootstrap &amp; Thymeleaf</span>
+    </div>
+</footer>
+
+<th:block th:fragment="scripts">
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/validation.js}"></script>
+</th:block>
+
+</body>
+</html>

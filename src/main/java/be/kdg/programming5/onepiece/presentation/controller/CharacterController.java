@@ -1,11 +1,11 @@
 package be.kdg.programming5.onepiece.presentation.controller;
 
-import be.kdg.programming3.onepiece.business.domain.Character;
-import be.kdg.programming3.onepiece.business.domain.Crew;
-import be.kdg.programming3.onepiece.business.domain.Powertype;
-import be.kdg.programming3.onepiece.business.service.BattleService;
-import be.kdg.programming3.onepiece.business.service.CharacterService;
-import be.kdg.programming3.onepiece.presentation.viewmodel.CharacterViewModel;
+import be.kdg.programming5.onepiece.business.domain.Character;
+import be.kdg.programming5.onepiece.business.domain.Crew;
+import be.kdg.programming5.onepiece.business.domain.Powertype;
+import be.kdg.programming5.onepiece.business.service.BattleService;
+import be.kdg.programming5.onepiece.business.service.CharacterService;
+import be.kdg.programming5.onepiece.presentation.viewmodel.CharacterViewModel;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-import be.kdg.programming3.onepiece.business.exception.CharacterNotFoundException;
+import be.kdg.programming5.onepiece.business.exception.CharacterNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.List;
 
@@ -118,7 +118,7 @@ public class CharacterController {
                 .map(character -> {
                     model.addAttribute("character", character);
                     model.addAttribute("battles", battleService.getBattlesForCharacter(id));
-                    if (character instanceof be.kdg.programming3.onepiece.business.domain.Swordsman swordsman) {
+                    if (character instanceof be.kdg.programming5.onepiece.business.domain.Swordsman swordsman) {
                         model.addAttribute("swordName", swordsman.getSwordName());
                     }
                     return "characterDetail";

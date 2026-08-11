@@ -1,8 +1,8 @@
 package be.kdg.programming5.onepiece.business.service;
 
-import be.kdg.programming3.onepiece.business.domain.Character;
-import be.kdg.programming3.onepiece.business.domain.Crew;
-import be.kdg.programming3.onepiece.business.domain.Powertype;
+import be.kdg.programming5.onepiece.business.domain.Character;
+import be.kdg.programming5.onepiece.business.domain.Crew;
+import be.kdg.programming5.onepiece.business.domain.Powertype;
 
 import java.util.List;
 import java.util.Optional;

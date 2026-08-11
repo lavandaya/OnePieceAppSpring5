@@ -1,6 +1,6 @@
 package be.kdg.programming5.onepiece.business.service;
 
-import be.kdg.programming3.onepiece.business.domain.Battle;
+import be.kdg.programming5.onepiece.business.domain.Battle;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

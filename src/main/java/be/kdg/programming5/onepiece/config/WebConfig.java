@@ -1,8 +1,7 @@
 package be.kdg.programming5.onepiece.config;
 
-import be.kdg.programming3.onepiece.business.service.CharacterService;
-import be.kdg.programming3.onepiece.presentation.converter.StringToCrewConverter;
-import be.kdg.programming3.onepiece.presentation.interceptor.HistoryInterceptor;
+import be.kdg.programming5.onepiece.business.service.CharacterService;
+import be.kdg.programming5.onepiece.presentation.converter.StringToCrewConverter;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -16,15 +15,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final MessageSource messageSource;
     private final CharacterService characterService;
-    private final HistoryInterceptor historyInterceptor;
 
     public WebConfig(MessageSource messageSource,
-                     CharacterService characterService,
-                     HistoryInterceptor historyInterceptor) {
+                     CharacterService characterService) {
         this.messageSource = messageSource;
-        this.characterService = characterService;
-        this.historyInterceptor = historyInterceptor;
-    }
+        this.characterService = characterService;}
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
@@ -38,8 +33,4 @@ public class WebConfig implements WebMvcConfigurer {
         return validator;
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(historyInterceptor);
-    }
 }
