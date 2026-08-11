@@ -1,8 +1,10 @@
 package be.kdg.programming5.onepiece.business.service.impl;
 
 import be.kdg.programming5.onepiece.business.domain.Battle;
+import be.kdg.programming5.onepiece.business.domain.CharacterBattle;
 import be.kdg.programming5.onepiece.business.service.BattleService;
 import be.kdg.programming5.onepiece.data.repository.BattleRepository;
+import be.kdg.programming5.onepiece.data.repository.CharacterBattleRepository;
 import be.kdg.programming5.onepiece.data.repository.CharacterRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +24,13 @@ public class BattleServiceImpl implements BattleService {
 
     private final BattleRepository repository;
     private final CharacterRepository characterRepository;
+    private final CharacterBattleRepository characterBattleRepository;
 
-    public BattleServiceImpl(BattleRepository repository, CharacterRepository characterRepository) {
+    public BattleServiceImpl(BattleRepository repository, CharacterRepository characterRepository,
+                             CharacterBattleRepository characterBattleRepository) {
         this.repository = repository;
         this.characterRepository = characterRepository;
+        this.characterBattleRepository = characterBattleRepository;
     }
 
     @Override
@@ -57,7 +62,7 @@ public class BattleServiceImpl implements BattleService {
 
     @Override
     public List<Battle> getBattlesForCharacter(int characterId) {
-        return repository.findByCharacters_Id(characterId);
+        return repository.findByCharacterId(characterId);
     }
 
     @Override
@@ -69,7 +74,8 @@ public class BattleServiceImpl implements BattleService {
         if (characterIds != null) {
             characterIds.forEach(charId ->
                     characterRepository.findById(charId)
-                            .ifPresent(character -> character.getBattles().add(battle)));
+                            .ifPresent(character ->
+                                    characterBattleRepository.save(new CharacterBattle(character, battle))));
         }
         logger.debug("Added battle {} with {} character(s)", battle,
                 characterIds == null ? 0 : characterIds.size());
@@ -78,10 +84,7 @@ public class BattleServiceImpl implements BattleService {
     @Override
     @Transactional
     public void deleteBattle(int id) {
-        // Battle is the inverse side of the m2m, so join rows must be removed
-        // from the owning side (Character) before the battle can be deleted.
-        characterRepository.findByBattles_Id(id)
-                .forEach(character -> character.getBattles().removeIf(battle -> battle.getId() == id));
+        characterBattleRepository.deleteByBattleId(id);
         repository.deleteById(id);
         logger.debug("Deleted battle id={}", id);
     }

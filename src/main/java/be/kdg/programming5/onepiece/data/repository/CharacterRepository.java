@@ -21,13 +21,15 @@ public interface CharacterRepository extends JpaRepository<Character, Integer> {
 
     List<Character> findByPower(double power);
 
-    List<Character> findByBattles_Id(int battleId);
-
     List<Character> findByNameContainingIgnoreCase(String name);
 
     List<Character> findByPowerGreaterThanEqual(double minPower);
 
-    @Query("SELECT DISTINCT c FROM Character c WHERE SIZE(c.battles) >= :minBattles ORDER BY c.id")
+    @Query("SELECT cb.character FROM CharacterBattle cb WHERE cb.battle.id = :battleId ORDER BY cb.character.id")
+    List<Character> findByBattleId(@Param("battleId") int battleId);
+
+    @Query("SELECT DISTINCT c FROM Character c WHERE " +
+            "(SELECT COUNT(cb) FROM CharacterBattle cb WHERE cb.character = c) >= :minBattles ORDER BY c.id")
     List<Character> findByMinBattles(@Param("minBattles") int minBattles);
 
     @Modifying

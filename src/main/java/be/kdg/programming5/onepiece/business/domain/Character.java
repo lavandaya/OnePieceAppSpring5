@@ -2,8 +2,6 @@ package be.kdg.programming5.onepiece.business.domain;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -37,13 +35,7 @@ public class Character {
     @JoinColumn(name = "crew_name")
     private Crew crew;
 
-    @ManyToMany
-    @JoinTable(
-            name = "character_battles",
-            joinColumns = @JoinColumn(name = "character_id"),
-            inverseJoinColumns = @JoinColumn(name = "battle_id")
-    )
-    private List<Battle> battles = new ArrayList<>();
+
 
     protected Character() {
     }
@@ -72,14 +64,6 @@ public class Character {
     public Crew getCrew() { return crew; }
     public void setCrew(Crew crew) { this.crew = crew; }
 
-    public List<Battle> getBattles() { return battles; }
-
-    public void addBattle(Battle battle) {
-        if (battle != null && !battles.contains(battle)) {
-            battles.add(battle);
-            battle.addCharacter(this);
-        }
-    }
 
     @Override
     public String toString() {

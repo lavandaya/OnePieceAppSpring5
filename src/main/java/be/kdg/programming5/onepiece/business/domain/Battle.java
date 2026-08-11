@@ -3,8 +3,7 @@ package be.kdg.programming5.onepiece.business.domain;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Entity
 @Table(name = "battles")
@@ -26,8 +25,7 @@ public class Battle {
     @Column(nullable = false, length = 100)
     private String winner;
 
-    @ManyToMany(mappedBy = "battles")
-    private List<Character> characters = new ArrayList<>();
+
 
     protected Battle() {
     }
@@ -51,14 +49,6 @@ public class Battle {
     public LocalDateTime getDate() { return date; }
     public String getWinner() { return winner; }
 
-    public List<Character> getCharacters() { return characters; }
-
-    public void addCharacter(Character character) {
-        if (character != null && !characters.contains(character)) {
-            characters.add(character);
-            character.addBattle(this);
-        }
-    }
 
     @Override
     public String toString() {

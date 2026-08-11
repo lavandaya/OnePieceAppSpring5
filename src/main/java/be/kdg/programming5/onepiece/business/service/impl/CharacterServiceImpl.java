@@ -5,6 +5,7 @@ import be.kdg.programming5.onepiece.business.domain.Crew;
 import be.kdg.programming5.onepiece.business.domain.Powertype;
 import be.kdg.programming5.onepiece.business.exception.CharacterNotFoundException;
 import be.kdg.programming5.onepiece.business.service.CharacterService;
+import be.kdg.programming5.onepiece.data.repository.CharacterBattleRepository;
 import be.kdg.programming5.onepiece.data.repository.CharacterRepository;
 import be.kdg.programming5.onepiece.data.repository.CrewRepository;
 import org.slf4j.Logger;
@@ -23,10 +24,13 @@ public class CharacterServiceImpl implements CharacterService {
 
     private final CharacterRepository repository;
     private final CrewRepository crewRepository;
+    private final CharacterBattleRepository characterBattleRepository;
 
-    public CharacterServiceImpl(CharacterRepository repository, CrewRepository crewRepository) {
+    public CharacterServiceImpl(CharacterRepository repository, CrewRepository crewRepository,
+                                CharacterBattleRepository characterBattleRepository) {
         this.repository = repository;
         this.crewRepository = crewRepository;
+        this.characterBattleRepository = characterBattleRepository;
     }
 
     @Override
@@ -51,7 +55,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     public List<Character> getCharactersInBattle(int battleId) {
-        return repository.findByBattles_Id(battleId);
+        return repository.findByBattleId(battleId);
     }
 
     @Override
@@ -95,6 +99,7 @@ public class CharacterServiceImpl implements CharacterService {
         if (!repository.existsById(id)) {
             throw new CharacterNotFoundException(id);
         }
+        characterBattleRepository.deleteByCharacterId(id);
         repository.deleteById(id);
         logger.debug("Deleted character id={}", id);
     }

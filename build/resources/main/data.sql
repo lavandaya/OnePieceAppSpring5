@@ -3,12 +3,12 @@ INSERT INTO crews (name, has_bounty, ship_name) VALUES
                                                     ('Heart Pirates', TRUE, 'Polar Tang');
 
 INSERT INTO characters (character_id, name, age, appearance, powertype, power, crew_name, character_type, sword_name) VALUES
-                                                                                              (1, 'Luffy',     18, 'https://placehold.co/400x400/d62828/ffffff?text=Luffy',     'DEVIL_FRUIT', 10, 'Straw Hat Pirates', 'CHARACTER', NULL),
-                                                                                              (2, 'Zoro',      20, 'https://placehold.co/400x400/2a6f4e/ffffff?text=Zoro',      'WILL',         9, 'Straw Hat Pirates', 'SWORDSMAN', 'Wado Ichimonji'),
-                                                                                              (3, 'Sanji',     20, 'https://placehold.co/400x400/e8a23d/000000?text=Sanji',     'NO_POWER',     8, 'Straw Hat Pirates', 'CHARACTER', NULL),
-                                                                                              (4, 'Ussop',     19, 'https://placehold.co/400x400/8a5a44/ffffff?text=Ussop',     'NO_POWER',     1, 'Straw Hat Pirates', 'CHARACTER', NULL),
-                                                                                              (5, 'Nami',      19, 'https://placehold.co/400x400/e07a9b/000000?text=Nami',      'NO_POWER',     1, 'Straw Hat Pirates', 'CHARACTER', NULL),
-                                                                                              (6, 'Trafalgar', 21, 'https://placehold.co/400x400/4a4e69/ffffff?text=Trafalgar', 'DEVIL_FRUIT', 10, 'Heart Pirates',     'CHARACTER', NULL);
+                                                                                                                          (1, 'Luffy',     18, 'https://placehold.co/400x400/d62828/ffffff?text=Luffy',     'DEVIL_FRUIT', 10, 'Straw Hat Pirates', 'CHARACTER', NULL),
+                                                                                                                          (2, 'Zoro',      20, 'https://placehold.co/400x400/2a6f4e/ffffff?text=Zoro',      'WILL',         9, 'Straw Hat Pirates', 'SWORDSMAN', 'Wado Ichimonji'),
+                                                                                                                          (3, 'Sanji',     20, 'https://placehold.co/400x400/e8a23d/000000?text=Sanji',     'NO_POWER',     8, 'Straw Hat Pirates', 'CHARACTER', NULL),
+                                                                                                                          (4, 'Ussop',     19, 'https://placehold.co/400x400/8a5a44/ffffff?text=Ussop',     'NO_POWER',     1, 'Straw Hat Pirates', 'CHARACTER', NULL),
+                                                                                                                          (5, 'Nami',      19, 'https://placehold.co/400x400/e07a9b/000000?text=Nami',      'NO_POWER',     1, 'Straw Hat Pirates', 'CHARACTER', NULL),
+                                                                                                                          (6, 'Trafalgar', 21, 'https://placehold.co/400x400/4a4e69/ffffff?text=Trafalgar', 'DEVIL_FRUIT', 10, 'Heart Pirates',     'CHARACTER', NULL);
 
 INSERT INTO battles (battle_id, name, location, fought_at, winner) VALUES
                                                                        (1, 'Arlong Park showdown',    'Arlong Park',      '2005-07-23 12:20:00', 'Luffy'),
@@ -27,5 +27,6 @@ INSERT INTO character_battles (character_id, battle_id) VALUES
                                                             (4, 1), (4, 6),
                                                             (5, 1), (5, 8),
                                                             (6, 8);
+
 ALTER TABLE characters ALTER COLUMN character_id RESTART WITH 7;
 ALTER TABLE battles ALTER COLUMN battle_id RESTART WITH 9;
