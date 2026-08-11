@@ -1,0 +1,101 @@
+package be.kdg.programming5.onepiece.business.domain;
+
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+@Entity
+@Table(name = "characters")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "character_type", length = 20)
+@DiscriminatorValue("CHARACTER")
+public class Character {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "character_id")
+    private int id;
+
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    @Column(nullable = false)
+    private int age;
+
+    @Column(nullable = false, length = 255)
+    private String appearance;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Powertype powertype;
+
+    @Column(nullable = false)
+    private double power;
+
+    @ManyToOne
+    @JoinColumn(name = "crew_name")
+    private Crew crew;
+
+    @ManyToMany
+    @JoinTable(
+            name = "character_battles",
+            joinColumns = @JoinColumn(name = "character_id"),
+            inverseJoinColumns = @JoinColumn(name = "battle_id")
+    )
+    private List<Battle> battles = new ArrayList<>();
+
+    protected Character() {
+    }
+
+    public Character(int id, String name, int age, String appearance, Powertype powertype, double power) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.appearance = appearance;
+        this.powertype = powertype;
+        this.power = power;
+    }
+
+    public Character(String name, int age, String appearance, Powertype powertype, double power) {
+        this(0, name, age, appearance, powertype, power);
+    }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public int getAge() { return age; }
+    public String getAppearance() { return appearance; }
+    public Powertype getPowertype() { return powertype; }
+    public double getPower() { return power; }
+
+    public Crew getCrew() { return crew; }
+    public void setCrew(Crew crew) { this.crew = crew; }
+
+    public List<Battle> getBattles() { return battles; }
+
+    public void addBattle(Battle battle) {
+        if (battle != null && !battles.contains(battle)) {
+            battles.add(battle);
+            battle.addCharacter(this);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Character #" + id + ", " + name + ", powertype - " + powertype + ", power - " + power + " DON";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Character character = (Character) o;
+        return id == character.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+}
