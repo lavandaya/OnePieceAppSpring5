@@ -31,7 +31,7 @@ public class Character {
     @Column(nullable = false)
     private double power;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "crew_name")
     private Crew crew;
 
