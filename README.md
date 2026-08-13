@@ -40,6 +40,15 @@ docker compose down
 
 ### Fetching all characters - OK
 
+> **Note on authentication.** These examples were written in week 2 and 3, before Spring
+> Security was added. From week 4 onward, `GET` requests stay public, but every request that
+> modifies data requires an authenticated session **and** a CSRF token. The examples below have
+> been updated accordingly: they show the `Cookie` and `X-XSRF-TOKEN` headers that a signed-in
+> client sends. Token values are shortened for readability. The runnable versions of all of
+> these, including the sign-in requests that obtain the cookie and the token, are in
+> [`character-api.http`](character-api.http).
+
+
 Request:
 ```
 GET http://localhost:8080/api/characters

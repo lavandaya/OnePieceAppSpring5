@@ -1,5 +1,6 @@
 package be.kdg.programming5.onepiece.presentation.controller;
 
+import be.kdg.programming5.onepiece.business.exception.CharacterNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -19,6 +20,15 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(CharacterNotFoundException.class)
+    public String handleCharacterNotFound(CharacterNotFoundException ex, Model model) {
+        logger.debug("Character not found: {}", ex.getMessage());
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error/general";
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(DataAccessException.class)
     public String handleDatabaseException(DataAccessException ex, Model model) {
         logger.error("Database error: {}", ex.getMessage(), ex);
@@ -34,6 +44,7 @@ public class GlobalExceptionHandler {
         return "error/general";
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public String handleGenericException(Exception ex, Model model) {
         logger.error("Unhandled exception: {}", ex.getMessage(), ex);

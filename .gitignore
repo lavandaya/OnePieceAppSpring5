@@ -34,3 +34,8 @@ Thumbs.db
 
 # Spring Boot
 HELP.md
+
+# Backup files
+*.old
+*.bak
+*.orig

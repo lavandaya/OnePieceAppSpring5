@@ -19,6 +19,8 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import org.springframework.http.MediaType;
+
 import java.io.IOException;
 
 @Configuration
@@ -52,6 +54,15 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
+                        (request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            response.getWriter().write(
+                                    "{\"message\":\"Authentication is required to perform this action\"}");
+                        },
+                        request -> request.getRequestURI().startsWith("/api/")))
+
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/characters", true)

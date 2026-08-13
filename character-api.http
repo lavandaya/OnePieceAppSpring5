@@ -170,3 +170,357 @@ Accept: application/xml
 {
   "power": 9.5
 }
+
+
+
+### ═══════════════ Public endpoints (no authentication) ═══════════════
+
+### Get all characters - OK
+GET {{baseUrl}}/api/characters
+Accept: application/json
+
+### Search characters by name - OK
+GET {{baseUrl}}/api/characters?name=Luffy
+Accept: application/json
+
+### Search characters by minPower - OK
+GET {{baseUrl}}/api/characters?minPower=8
+Accept: application/json
+
+### Get single character - OK
+GET {{baseUrl}}/api/characters/1
+Accept: application/json
+
+### Get single character - Not Found
+GET {{baseUrl}}/api/characters/999
+Accept: application/json
+
+### Get single character - Not Acceptable
+GET {{baseUrl}}/api/characters/1
+Accept: application/xml
+
+### Get battles for character - OK
+GET {{baseUrl}}/api/characters/1/battles
+Accept: application/json
+
+### Get battles for character - Not Found
+GET {{baseUrl}}/api/characters/999/battles
+Accept: application/json
+
+
+### ═══════════════ Write attempts without authentication ═══════════════
+
+### Create character - Unauthorized
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Nico Robin",
+  "age": 28,
+  "appearance": "https://placehold.co/400x400/6b4c9a/ffffff?text=Robin",
+  "powertype": "DEVIL_FRUIT",
+  "power": 8.5,
+  "crewName": "Straw Hat Pirates"
+}
+
+### Update character - Unauthorized
+PATCH {{baseUrl}}/api/characters/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "power": 9.5
+}
+
+### Delete character - Unauthorized
+DELETE {{baseUrl}}/api/characters/1
+Accept: application/json
+
+
+### ═══════════════ Sign in as 'luffy' (owner of characters 1 and 3) ═══════════════
+
+### Load the login page to obtain a CSRF token
+GET {{baseUrl}}/login
+Accept: text/html
+
+> {%
+    const token = response.headers.valuesOf("Set-Cookie")
+        .filter(c => c.startsWith("XSRF-TOKEN="))
+        .map(c => c.substring("XSRF-TOKEN=".length).split(";")[0])
+        .filter(v => v.length > 0)
+        .pop();
+    client.global.set("csrfToken", token);
+%}
+
+### Sign in as luffy - Found
+# @no-redirect
+POST {{baseUrl}}/login
+Content-Type: application/x-www-form-urlencoded
+
+username=luffy&password=password123&_csrf={{csrfToken}}
+
+> {%
+    client.test("Login succeeded", () => {
+        client.assert(response.status === 302, "Expected 302, got " + response.status);
+    });
+    const token = response.headers.valuesOf("Set-Cookie")
+        .filter(c => c.startsWith("XSRF-TOKEN="))
+        .map(c => c.substring("XSRF-TOKEN=".length).split(";")[0])
+        .filter(v => v.length > 0)
+        .pop();
+    client.global.set("csrfToken", token);
+%}
+
+
+### ═══════════════ Authenticated as owner ═══════════════
+
+### Create character - Created
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "name": "Nico Robin",
+  "age": 28,
+  "appearance": "https://placehold.co/400x400/6b4c9a/ffffff?text=Robin",
+  "powertype": "DEVIL_FRUIT",
+  "power": 8.5,
+  "crewName": "Straw Hat Pirates"
+}
+
+### Create swordsman - Created
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "name": "Brook",
+  "age": 90,
+  "appearance": "https://placehold.co/400x400/3a3a3a/ffffff?text=Brook",
+  "powertype": "WILL",
+  "power": 7.5,
+  "crewName": "Straw Hat Pirates",
+  "swordName": "Soul Solid"
+}
+
+### Create character - Bad Request (constraint violations)
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "name": "Kaido",
+  "age": -5,
+  "appearance": "not-a-url",
+  "powertype": "DEVIL_FRUIT",
+  "power": 500
+}
+
+### Create character - Bad Request (unknown crew)
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "name": "Smoker",
+  "age": 36,
+  "appearance": "https://placehold.co/400x400/9aa0a6/000000?text=Smoker",
+  "powertype": "DEVIL_FRUIT",
+  "power": 6.0,
+  "crewName": "Marines"
+}
+
+### Create character - Bad Request (invalid enum value)
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "name": "Shanks",
+  "age": 39,
+  "appearance": "https://placehold.co/400x400/b02c2c/ffffff?text=Shanks",
+  "powertype": "MAGIC",
+  "power": 9.5
+}
+
+### Create character - Unsupported Media Type
+POST {{baseUrl}}/api/characters
+Content-Type: text/plain
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+name=Shanks
+
+### Update character - OK
+PATCH {{baseUrl}}/api/characters/7
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "power": 9.0
+}
+
+### Update swordsman - OK
+PATCH {{baseUrl}}/api/characters/8
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "power": 8.0,
+  "swordName": "Soul Solid (repaired)"
+}
+
+### Update character - Bad Request
+PATCH {{baseUrl}}/api/characters/8
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "power": 500
+}
+
+### Update character - Conflict (not a swordsman)
+PATCH {{baseUrl}}/api/characters/7
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "swordName": "Yoru"
+}
+
+### Update character - Unsupported Media Type
+PATCH {{baseUrl}}/api/characters/7
+Content-Type: text/plain
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+power=9.5
+
+### Update character - Not Acceptable
+PATCH {{baseUrl}}/api/characters/7
+Content-Type: application/json
+Accept: application/xml
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "power": 9.5
+}
+
+
+### ═══════════════ Authorization failures ═══════════════
+
+### Update a character owned by another user - Forbidden
+PATCH {{baseUrl}}/api/characters/2
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "power": 1.0
+}
+
+### Delete a character owned by another user - Forbidden
+DELETE {{baseUrl}}/api/characters/2
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+### Create character without a CSRF token - Forbidden
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Jinbe",
+  "age": 44,
+  "appearance": "https://placehold.co/400x400/1d3f6e/ffffff?text=Jinbe",
+  "powertype": "NO_POWER",
+  "power": 8.0,
+  "crewName": "Straw Hat Pirates"
+}
+
+
+### ═══════════════ Delete as owner ═══════════════
+
+### Delete own character - No Content
+DELETE {{baseUrl}}/api/characters/7
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+### Get the deleted character - Not Found
+GET {{baseUrl}}/api/characters/7
+Accept: application/json
+
+
+### ═══════════════ Sign in as 'admin' ═══════════════
+
+### Sign out - Found
+# @no-redirect
+POST {{baseUrl}}/logout
+Content-Type: application/x-www-form-urlencoded
+
+_csrf={{csrfToken}}
+
+### Load the login page again to obtain a fresh CSRF token
+GET {{baseUrl}}/login
+Accept: text/html
+
+> {%
+    const token = response.headers.valuesOf("Set-Cookie")
+        .filter(c => c.startsWith("XSRF-TOKEN="))
+        .map(c => c.substring("XSRF-TOKEN=".length).split(";")[0])
+        .filter(v => v.length > 0)
+        .pop();
+    client.global.set("csrfToken", token);
+%}
+
+### Sign in as admin - Found
+# @no-redirect
+POST {{baseUrl}}/login
+Content-Type: application/x-www-form-urlencoded
+
+username=admin&password=admin123&_csrf={{csrfToken}}
+
+> {%
+    client.test("Login succeeded", () => {
+        client.assert(response.status === 302, "Expected 302, got " + response.status);
+    });
+    const token = response.headers.valuesOf("Set-Cookie")
+        .filter(c => c.startsWith("XSRF-TOKEN="))
+        .map(c => c.substring("XSRF-TOKEN=".length).split(";")[0])
+        .filter(v => v.length > 0)
+        .pop();
+    client.global.set("csrfToken", token);
+%}
+
+
+### ═══════════════ Authenticated as administrator ═══════════════
+
+### Update an unknown character - Not Found
+PATCH {{baseUrl}}/api/characters/999
+Content-Type: application/json
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "power": 5.0
+}
+
+### Delete a character owned by another user - No Content
+DELETE {{baseUrl}}/api/characters/8
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+### Delete the same character again - Not Found
+DELETE {{baseUrl}}/api/characters/8
+Accept: application/json
+X-XSRF-TOKEN: {{csrfToken}}
