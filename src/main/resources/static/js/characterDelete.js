@@ -1,6 +1,11 @@
 (() => {
     'use strict';
 
+    function getCsrfToken() {
+        const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
     const grid = document.getElementById('characterGrid');
     if (!grid) {
         return;
@@ -19,7 +24,10 @@
         const characterId = button.dataset.characterId;
         const response = await fetch(`/api/characters/${characterId}`, {
             method: 'DELETE',
-            headers: { 'Accept': 'application/json' }
+            headers: {
+                'Accept': 'application/json',
+                'X-XSRF-TOKEN': getCsrfToken()
+            }
         });
 
         if (response.status === 204) {

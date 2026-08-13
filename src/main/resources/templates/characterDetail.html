@@ -47,19 +47,27 @@
             </div>
         </div>
     </div>
-    <section class="mb-4" id="patchCharacterPanel" th:data-character-id="${character.id}">
+
+    <section class="mb-4" th:if="${swordName != null}">
+        <div class="card border-warning shadow-sm">
+            <div class="card-body">
+                <p class="mb-0">
+                    <strong th:text="#{characterDetail.sword}">Sword:</strong>
+                    <span id="characterSwordBadge" class="badge text-bg-warning fs-6"
+                          th:text="${swordName}">sword</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-4" id="patchCharacterPanel" th:data-character-id="${character.id}"
+             th:if="${#authorization.expression('hasRole(''ADMIN'')') or (character.owner != null and #authentication.name == character.owner.username)}">
         <div class="card border-warning shadow-sm">
             <div class="card-body">
                 <h2 class="h4 mb-3">
                     <i class="bi bi-pencil-square"></i>
                     <span th:text="#{ajaxPatch.heading}">Quick edit (no page refresh)</span>
                 </h2>
-
-                <p class="mb-3" th:if="${swordName != null}">
-                    <strong th:text="#{characterDetail.sword}">Sword:</strong>
-                    <span id="characterSwordBadge" class="badge text-bg-warning fs-6"
-                          th:text="${swordName}">sword</span>
-                </p>
 
                 <div id="patchAlert" class="alert d-none"></div>
 

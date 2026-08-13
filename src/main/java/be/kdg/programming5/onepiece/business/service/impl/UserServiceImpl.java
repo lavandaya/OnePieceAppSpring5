@@ -1,5 +1,6 @@
 package be.kdg.programming5.onepiece.business.service.impl;
 
+import be.kdg.programming5.onepiece.business.domain.Role;
 import be.kdg.programming5.onepiece.business.domain.User;
 import be.kdg.programming5.onepiece.business.exception.UsernameTakenException;
 import be.kdg.programming5.onepiece.business.service.UserService;
@@ -9,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import be.kdg.programming5.onepiece.business.domain.Role;
+
 import java.util.Optional;
 
 @Service
@@ -25,7 +26,7 @@ public class UserServiceImpl implements UserService {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
     }
-    User user = new User(username, passwordEncoder.encode(rawPassword), email, Role.USER);
+
     @Override
     public Optional<User> getUserByUsername(String username) {
         return repository.findByUsername(username);
@@ -42,7 +43,7 @@ public class UserServiceImpl implements UserService {
         if (repository.existsByUsername(username)) {
             throw new UsernameTakenException(username);
         }
-        User user = new User(username, passwordEncoder.encode(rawPassword), email);
+        User user = new User(username, passwordEncoder.encode(rawPassword), email, Role.USER);
         repository.save(user);
         logger.debug("Registered new user {}", user);
         return user;

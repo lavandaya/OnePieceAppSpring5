@@ -122,6 +122,7 @@
                         <i class="bi bi-eye"></i> <span th:text="#{characters.details}">View details</span>
                     </a>
                     <button type="button" class="btn btn-sm btn-outline-danger btn-delete-character"
+                            th:if="${#authorization.expression('hasRole(''ADMIN'')') or (character.owner != null and #authentication.name == character.owner.username)}"
                             th:data-character-id="${character.id}"
                             th:title="#{button.delete}">
                         <i class="bi bi-trash"></i>

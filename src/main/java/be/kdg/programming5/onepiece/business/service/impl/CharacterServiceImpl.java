@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import be.kdg.programming5.onepiece.business.domain.Swordsman;
 import be.kdg.programming5.onepiece.business.exception.CrewNotFoundException;
 import be.kdg.programming5.onepiece.business.exception.NotASwordsmanException;
@@ -107,6 +107,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN') or @characterSecurity.isOwner(#id, authentication)")
     public void deleteCharacter(int id) {
         if (!repository.existsById(id)) {
             throw new CharacterNotFoundException(id);
@@ -118,6 +119,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN') or @characterSecurity.isOwner(#id, authentication)")
     public void updateSwordName(int id, String swordName) {
         if (!repository.existsById(id)) {
             throw new CharacterNotFoundException(id);
@@ -143,6 +145,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN') or @characterSecurity.isOwner(#id, authentication)")
     public Character updateCharacter(int id, CharacterUpdate update) {
         Character character = repository.findByIdWithCrew(id)
                 .orElseThrow(() -> new CharacterNotFoundException(id));
@@ -176,4 +179,7 @@ public class CharacterServiceImpl implements CharacterService {
         logger.debug("Updated character id={}", id);
         return character;
     }
+
+
+
 }

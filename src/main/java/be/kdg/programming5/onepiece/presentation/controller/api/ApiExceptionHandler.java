@@ -11,7 +11,7 @@ import be.kdg.programming5.onepiece.business.exception.CrewNotFoundException;
 import be.kdg.programming5.onepiece.business.exception.NotASwordsmanException;
 import be.kdg.programming5.onepiece.presentation.dto.ApiErrorDto;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,5 +55,12 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiErrorDto> handleNotASwordsman(NotASwordsmanException ex) {
         logger.debug("Sword update rejected for character id={}", ex.getCharacterId());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorDto(ex.getMessage()));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorDto> handleAccessDenied(AccessDeniedException ex) {
+        logger.warn("Access denied on API: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiErrorDto("You don't have permission to perform this action"));
     }
 }

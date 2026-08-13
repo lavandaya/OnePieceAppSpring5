@@ -9,6 +9,12 @@
     const grid = document.getElementById('characterGrid');
     const alertBox = document.getElementById('addCharacterAlert');
 
+
+    function getCsrfToken() {
+        const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
     function fieldValue(field) {
         const input = form.querySelector(`[data-field="${field}"]`);
         const raw = input.value.trim();
@@ -129,7 +135,8 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-XSRF-TOKEN': getCsrfToken()
             },
             body: JSON.stringify(payload)
         });

@@ -1,6 +1,11 @@
 (() => {
     'use strict';
 
+    function getCsrfToken() {
+        const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
     const panel = document.getElementById('patchCharacterPanel');
     if (!panel) {
         return;
@@ -70,7 +75,8 @@
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-XSRF-TOKEN': getCsrfToken()
             },
             body: JSON.stringify(payload)
         });
