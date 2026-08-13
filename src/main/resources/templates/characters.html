@@ -32,7 +32,7 @@
         </div>
     </form>
 
-    <div class="card shadow-sm mb-4">
+    <div class="card shadow-sm mb-4" sec:authorize="isAuthenticated()">
         <div class="card-body">
             <h2 class="h5 mb-3" th:text="#{ajaxAdd.heading}">Quick add (no page refresh)</h2>
 

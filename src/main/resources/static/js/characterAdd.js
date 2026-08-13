@@ -1,6 +1,11 @@
 (() => {
     'use strict';
 
+    function getCsrfToken() {
+        const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
     const form = document.getElementById('addCharacterForm');
     if (!form) {
         return;
@@ -8,12 +13,6 @@
 
     const grid = document.getElementById('characterGrid');
     const alertBox = document.getElementById('addCharacterAlert');
-
-
-    function getCsrfToken() {
-        const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
-        return match ? decodeURIComponent(match[1]) : null;
-    }
 
     function fieldValue(field) {
         const input = form.querySelector(`[data-field="${field}"]`);
@@ -109,7 +108,10 @@
         deleteButton.type = 'button';
         deleteButton.className = 'btn btn-sm btn-outline-danger btn-delete-character';
         deleteButton.dataset.characterId = character.id;
-        deleteButton.textContent = 'Delete';
+        deleteButton.title = 'Delete';
+        const trashIcon = document.createElement('i');
+        trashIcon.className = 'bi bi-trash';
+        deleteButton.appendChild(trashIcon);
 
         footer.append(detailLink, deleteButton);
         card.append(image, body, footer);

@@ -599,3 +599,85 @@ the API is part of week 5.
   Security. Every user currently gets the `ROLE_USER` authority; multiple roles follow in week 5.
 - CSRF protection is temporarily disabled so that the AJAX features from weeks 2 and 3 keep
   working unchanged. It is re-enabled in week 5.
+
+## Week 5
+
+### Roles
+
+Two roles exist: `USER` and `ADMIN`. Every seeded and self-registered account has exactly
+one role, stored on the persisted `User` entity (`Role` enum) and exposed to Spring Security
+as `ROLE_USER` / `ROLE_ADMIN` by `CustomUserDetailsService`.
+
+| Role          | Who has it                              | Can do                                                                                   |
+|---------------|------------------------------------------|-------------------------------------------------------------------------------------------|
+| Anonymous     | anyone not signed in                     | Browse characters/battles/crews; power value hidden; no create/edit/delete actions visible |
+| `USER`        | `luffy`, `zoro`, self-registered accounts | Everything anonymous can, plus: see power values, add characters/battles, edit/delete **only characters they created** |
+| `ADMIN`       | `admin`                                  | Everything `USER` can, plus: edit/delete **any** character regardless of owner            |
+
+### Seeded users
+
+These accounts are created by `src/main/resources/data.sql` when the application starts.
+Passwords are stored as BCrypt hashes; the plain values below are for testing only.
+
+| Username | Password      | Email                | Role    | Owns                  |
+|----------|---------------|-----------------------|---------|------------------------|
+| `luffy`  | `password123` | luffy@strawhat.com    | USER    | Luffy, Sanji           |
+| `zoro`   | `password123` | zoro@strawhat.com     | USER    | Zoro, Ussop            |
+| `admin`  | `admin123`    | admin@onepiece.com    | ADMIN   | Nami, Trafalgar         |
+
+### Character ownership
+
+`Character` now has an `owner` (`User`, `@ManyToOne(fetch = LAZY)`). The creator becomes the
+owner automatically, both through the MVC form
+([http://localhost:8080/characters](http://localhost:8080/characters), "Quick add" panel) and
+through `POST /api/characters`.
+
+Only the owner or an `ADMIN` can update (power, sword name) or delete a character. This is
+enforced with `@PreAuthorize` on `CharacterServiceImpl` (`deleteCharacter`, `updateSwordName`,
+`updateCharacter`), backed by a custom permission bean, `CharacterSecurity`. Because both the
+MVC controller and the REST controller call the same service methods, the check applies
+consistently regardless of entry point — there is no separate authorization logic duplicated
+per controller.
+
+Example: sign in as `luffy` and open
+[http://localhost:8080/characters/1](http://localhost:8080/characters/1) (owned by `luffy`) —
+the "Quick edit" panel is visible. Open
+[http://localhost:8080/characters/2](http://localhost:8080/characters/2) (owned by `zoro`) —
+the panel is gone, even though the character itself is still fully visible.
+
+### Hidden for unauthenticated / non-owner users
+
+- The exact power value (DON) — unchanged from week 4, still hidden for anonymous visitors on
+  every view that renders it.
+- The "Quick add" form on
+  [http://localhost:8080/characters](http://localhost:8080/characters) — only rendered for
+  signed-in users.
+- The delete button on each character card — only rendered for that character's owner or an
+  `ADMIN`.
+- The "Quick edit" panel on a character's detail page — only rendered for that character's
+  owner or an `ADMIN`.
+
+Hiding these is a UI convenience on top of the actual authorization: the underlying
+`/api/characters` endpoints enforce the same rule server-side and reject unauthorized attempts
+with `403 Forbidden`, independent of what the browser shows.
+
+### REST API authorization
+
+- `GET /api/characters/**` stays public (read-only).
+- `POST /api/characters` requires authentication (the caller becomes the owner of the created
+  character).
+- `PATCH /api/characters/{id}` and `DELETE /api/characters/{id}` require authentication at the
+  route level and ownership (or `ADMIN`) at the service level.
+- Unauthorized calls receive `403 Forbidden` with a JSON body (`ApiErrorDto`), handled by
+  `ApiExceptionHandler`; the equivalent MVC actions render `error/general` with `403` via
+  `GlobalExceptionHandler`.
+
+### CSRF
+
+CSRF protection is re-enabled (it was temporarily disabled in week 4):
+
+- `CookieCsrfTokenRepository` issues a `XSRF-TOKEN` cookie readable by JavaScript.
+- Thymeleaf forms (login, register, add battle, sword update, delete forms) automatically
+  include the hidden `_csrf` field — no template changes were needed there.
+- The AJAX scripts (`characterAdd.js`, `characterPatch.js`, `characterDelete.js`) read the
+  cookie and send it back in the `X-XSRF-TOKEN` header on every state-changing `fetch` call.
