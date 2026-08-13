@@ -681,3 +681,25 @@ CSRF protection is re-enabled (it was temporarily disabled in week 4):
   include the hidden `_csrf` field — no template changes were needed there.
 - The AJAX scripts (`characterAdd.js`, `characterPatch.js`, `characterDelete.js`) read the
   cookie and send it back in the `X-XSRF-TOKEN` header on every state-changing `fetch` call.
+
+## Week 6
+
+### Spring profiles
+
+| Profile | Datasource                              | Seeding (`data.sql`)      |
+|---------|------------------------------------------|----------------------------|
+| `dev`   | `onepiece_db` (port 5433)                | `spring.sql.init.mode=always` |
+| `test`  | `onepiece_test_db` (port 5434)           | `spring.sql.init.mode=never`  |
+
+`dev` is the default (`spring.profiles.active=dev` in `application.properties`). `test` is
+activated on the test classes via `@ActiveProfiles("test")`, never on the command line, so
+`./gradlew test` and `./gradlew bootRun` always talk to different databases and never
+interfere with each other's data.
+
+### Test classes
+
+- `CharacterRepositoryTest` — repository layer (`@DataJpaTest`)
+- `CharacterServiceIntegrationTest`, `UserServiceIntegrationTest` — service layer
+  (`@SpringBootTest`, integration tests)
+- `@WithMockUser`-based tests live in `CharacterServiceIntegrationTest`, since
+  `updateCharacter` / `deleteCharacter` / `updateSwordName` are annotated with `@PreAuthorize`

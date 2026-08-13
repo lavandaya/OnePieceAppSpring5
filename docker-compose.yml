@@ -12,5 +12,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  postgres-test-db:
+    image: postgres:16-alpine
+    container_name: onepiece_postgres_test
+    environment:
+      POSTGRES_DB: onepiece_test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Student_1234
+    ports:
+      - "5434:5432"
+    restart: unless-stopped
+
 volumes:
   postgres_data:
