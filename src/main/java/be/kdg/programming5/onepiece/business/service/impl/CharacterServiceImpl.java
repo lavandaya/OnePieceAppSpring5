@@ -13,6 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import be.kdg.programming5.onepiece.business.domain.Swordsman;
+import be.kdg.programming5.onepiece.business.exception.CrewNotFoundException;
+import be.kdg.programming5.onepiece.business.exception.NotASwordsmanException;
+import be.kdg.programming5.onepiece.business.service.CharacterUpdate;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -112,5 +117,54 @@ public class CharacterServiceImpl implements CharacterService {
         }
         repository.updateSwordName(id, swordName);
         logger.debug("Updated sword name for character id={}", id);
+    }
+
+
+    @Override
+    @Transactional
+    public Character createCharacter(Character character, String crewName) {
+        if (crewName != null && !crewName.isBlank()) {
+            character.setCrew(crewRepository.findByName(crewName)
+                    .orElseThrow(() -> new CrewNotFoundException(crewName)));
+        }
+        Character saved = repository.save(character);
+        logger.debug("Created character {} (crew='{}')", saved, crewName);
+        return saved;
+    }
+
+    @Override
+    @Transactional
+    public Character updateCharacter(int id, CharacterUpdate update) {
+        Character character = repository.findByIdWithCrew(id)
+                .orElseThrow(() -> new CharacterNotFoundException(id));
+
+        if (update.name() != null) {
+            character.setName(update.name());
+        }
+        if (update.age() != null) {
+            character.setAge(update.age());
+        }
+        if (update.appearance() != null) {
+            character.setAppearance(update.appearance());
+        }
+        if (update.powertype() != null) {
+            character.setPowertype(update.powertype());
+        }
+        if (update.power() != null) {
+            character.setPower(update.power());
+        }
+        if (update.crewName() != null) {
+            character.setCrew(crewRepository.findByName(update.crewName())
+                    .orElseThrow(() -> new CrewNotFoundException(update.crewName())));
+        }
+        if (update.swordName() != null) {
+            if (!(character instanceof Swordsman swordsman)) {
+                throw new NotASwordsmanException(id);
+            }
+            swordsman.setSwordName(update.swordName());
+        }
+
+        logger.debug("Updated character id={}", id);
+        return character;
     }
 }

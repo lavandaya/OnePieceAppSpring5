@@ -6,10 +6,17 @@ import be.kdg.programming5.onepiece.business.service.BattleService;
 import be.kdg.programming5.onepiece.business.service.CharacterService;
 import be.kdg.programming5.onepiece.presentation.dto.BattleDto;
 import be.kdg.programming5.onepiece.presentation.dto.CharacterDto;
+import be.kdg.programming5.onepiece.presentation.dto.NewCharacterDto;
+import be.kdg.programming5.onepiece.presentation.dto.UpdateCharacterDto;
+import be.kdg.programming5.onepiece.presentation.mapper.BattleMapper;
+import be.kdg.programming5.onepiece.presentation.mapper.CharacterMapper;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -18,10 +25,15 @@ public class CharacterRestController {
 
     private final CharacterService characterService;
     private final BattleService battleService;
+    private final CharacterMapper characterMapper;
+    private final BattleMapper battleMapper;
 
-    public CharacterRestController(CharacterService characterService, BattleService battleService) {
+    public CharacterRestController(CharacterService characterService, BattleService battleService,
+                                   CharacterMapper characterMapper, BattleMapper battleMapper) {
         this.characterService = characterService;
         this.battleService = battleService;
+        this.characterMapper = characterMapper;
+        this.battleMapper = battleMapper;
     }
 
     @GetMapping
@@ -35,14 +47,14 @@ public class CharacterRestController {
         } else {
             characters = characterService.getAllCharacters();
         }
-        return characters.stream().map(CharacterDto::fromEntity).toList();
+        return characterMapper.toDtoList(characters);
     }
 
     @GetMapping("/{id}")
     public CharacterDto getCharacter(@PathVariable int id) {
         Character character = characterService.getCharacterById(id)
                 .orElseThrow(() -> new CharacterNotFoundException(id));
-        return CharacterDto.fromEntity(character);
+        return characterMapper.toDto(character);
     }
 
     @GetMapping("/{id}/battles")
@@ -50,9 +62,26 @@ public class CharacterRestController {
         if (characterService.getCharacterById(id).isEmpty()) {
             throw new CharacterNotFoundException(id);
         }
-        return battleService.getBattlesForCharacter(id).stream()
-                .map(BattleDto::fromEntity)
-                .toList();
+        return battleMapper.toDtoList(battleService.getBattlesForCharacter(id));
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CharacterDto> createCharacter(@Valid @RequestBody NewCharacterDto dto,
+                                                        UriComponentsBuilder uriBuilder) {
+        Character created = characterService.createCharacter(characterMapper.toEntity(dto), dto.crewName());
+
+        URI location = uriBuilder.path("/api/characters/{id}")
+                .buildAndExpand(created.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(characterMapper.toDto(created));
+    }
+
+    @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CharacterDto> updateCharacter(@PathVariable int id,
+                                                        @Valid @RequestBody UpdateCharacterDto dto) {
+        Character updated = characterService.updateCharacter(id, characterMapper.toUpdate(dto));
+        return ResponseEntity.ok(characterMapper.toDto(updated));
     }
 
     @DeleteMapping("/{id}")

@@ -65,6 +65,12 @@ public class Character {
     public void setCrew(Crew crew) { this.crew = crew; }
 
 
+    public void setName(String name) { this.name = name; }
+    public void setAge(int age) { this.age = age; }
+    public void setAppearance(String appearance) { this.appearance = appearance; }
+    public void setPowertype(Powertype powertype) { this.powertype = powertype; }
+    public void setPower(double power) { this.power = power; }
+
     @Override
     public String toString() {
         return "Character #" + id + ", " + name + ", powertype - " + powertype + ", power - " + power + " DON";

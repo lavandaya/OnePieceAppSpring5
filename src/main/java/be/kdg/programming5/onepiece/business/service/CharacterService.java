@@ -24,4 +24,8 @@ public interface CharacterService {
                       Powertype powertype, double power, String crewName);
     void deleteCharacter(int id);
     void updateSwordName(int id, String swordName);
+
+    Character createCharacter(Character character, String crewName);
+    Character updateCharacter(int id, CharacterUpdate update);
+
 }
