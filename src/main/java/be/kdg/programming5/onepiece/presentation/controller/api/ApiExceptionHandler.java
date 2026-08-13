@@ -11,7 +11,7 @@ import be.kdg.programming5.onepiece.business.exception.CrewNotFoundException;
 import be.kdg.programming5.onepiece.business.exception.NotASwordsmanException;
 import be.kdg.programming5.onepiece.presentation.dto.ApiErrorDto;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
+
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.util.HashMap;
 import java.util.Map;

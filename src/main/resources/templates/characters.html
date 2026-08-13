@@ -31,6 +31,65 @@
         </div>
     </form>
 
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5 mb-3" th:text="#{ajaxAdd.heading}">Quick add (no page refresh)</h2>
+
+            <div id="addCharacterAlert" class="alert alert-danger d-none"></div>
+
+            <form id="addCharacterForm" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label" th:text="#{addCharacter.label.name}">Name:</label>
+                    <input type="text" class="form-control" data-field="name">
+                    <div class="invalid-feedback d-block" data-error-for="name"></div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" th:text="#{addCharacter.label.age}">Age:</label>
+                    <input type="number" class="form-control" data-field="age">
+                    <div class="invalid-feedback d-block" data-error-for="age"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" th:text="#{addCharacter.label.appearance}">Appearance:</label>
+                    <input type="url" class="form-control" placeholder="https://..." data-field="appearance">
+                    <div class="invalid-feedback d-block" data-error-for="appearance"></div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" th:text="#{addCharacter.label.powertype}">Powertype:</label>
+                    <select class="form-select" data-field="powertype">
+                        <option value="" th:text="#{addCharacter.choose}">-- choose --</option>
+                        <option th:each="pt : ${powertypes}" th:value="${pt}" th:text="${pt}"></option>
+                    </select>
+                    <div class="invalid-feedback d-block" data-error-for="powertype"></div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" th:text="#{addCharacter.label.power}">Power (DON):</label>
+                    <input type="number" step="0.1" class="form-control" data-field="power">
+                    <div class="invalid-feedback d-block" data-error-for="power"></div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" th:text="#{addCharacter.label.crew}">Crew:</label>
+                    <select class="form-select" data-field="crewName">
+                        <option value="" th:text="#{addCharacter.choose}">-- choose --</option>
+                        <option th:each="c : ${crews}" th:value="${c.name}" th:text="${c.name}"></option>
+                    </select>
+                    <div class="invalid-feedback d-block" data-error-for="crewName"></div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" th:text="#{ajaxAdd.label.sword}">Sword (optional):</label>
+                    <input type="text" class="form-control" data-field="swordName">
+                    <div class="invalid-feedback d-block" data-error-for="swordName"></div>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-lightning-charge"></i> <span th:text="#{button.add}">Add</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="characterGrid" class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+
     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
         <div class="col" th:id="${'character-card-' + character.id}" th:each="character : ${characters}">
             <div class="card h-100 shadow-sm"
@@ -72,6 +131,7 @@
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 <script th:src="@{/js/characterDelete.js}"></script>
-
+<script th:src="@{/js/characterDelete.js}"></script>
+<script th:src="@{/js/characterAdd.js}"></script>
 </body>
 </html>

@@ -73,6 +73,7 @@ public class CharacterController {
 
         model.addAttribute("characters", characters);
         model.addAttribute("crews", crews);
+        model.addAttribute("powertypes", Powertype.values());
         model.addAttribute("selectedCrew", crewName);
         return "characters";
     }

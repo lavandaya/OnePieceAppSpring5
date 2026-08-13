@@ -1,22 +1,31 @@
 (() => {
     'use strict';
 
-    document.querySelectorAll('.btn-delete-character').forEach((button) => {
-        button.addEventListener('click', async () => {
-            if (!confirm('Delete this character?')) {
-                return;
-            }
+    const grid = document.getElementById('characterGrid');
+    if (!grid) {
+        return;
+    }
 
-            const characterId = button.dataset.characterId;
-            const response = await fetch(`/api/characters/${characterId}`, {
-                method: 'DELETE'
-            });
+    grid.addEventListener('click', async (event) => {
+        const button = event.target.closest('.btn-delete-character');
+        if (!button) {
+            return;
+        }
 
-            if (response.status === 204) {
-                document.getElementById(`character-card-${characterId}`)?.remove();
-            } else {
-                alert('Could not delete this character.');
-            }
+        if (!confirm('Delete this character?')) {
+            return;
+        }
+
+        const characterId = button.dataset.characterId;
+        const response = await fetch(`/api/characters/${characterId}`, {
+            method: 'DELETE',
+            headers: { 'Accept': 'application/json' }
         });
+
+        if (response.status === 204) {
+            document.getElementById(`character-card-${characterId}`)?.remove();
+        } else {
+            alert('Could not delete this character.');
+        }
     });
 })();
