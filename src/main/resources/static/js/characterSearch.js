@@ -1,6 +1,7 @@
 (() => {
     'use strict';
-
+    const isAuthenticated =
+        document.querySelector('meta[name="authenticated"]')?.content === 'true';
     const nameForm = document.getElementById('searchByNameForm');
     const powerForm = document.getElementById('searchByPowerForm');
     const resultsSection = document.getElementById('ajaxResultsSection');
@@ -68,8 +69,13 @@
 
             const powerCell = document.createElement('td');
             const powerBadge = document.createElement('span');
-            powerBadge.className = 'badge text-bg-primary';
-            powerBadge.textContent = `${character.power} DON`;
+            if (isAuthenticated) {
+                powerBadge.className = 'badge text-bg-primary';
+                powerBadge.textContent = `${character.power} DON`;
+            } else {
+                powerBadge.className = 'badge text-bg-secondary';
+                powerBadge.textContent = '???';
+            }
             powerCell.appendChild(powerBadge);
 
             row.append(createCell(character.id), nameCell, powertypeCell, powerCell);

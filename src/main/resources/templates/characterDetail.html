@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head(${character.name})}"></head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"><head th:replace="~{fragments/layout :: head(${character.name})}"></head>
 <body class="d-flex flex-column min-vh-100 bg-light">
 
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
@@ -34,8 +34,13 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <span th:text="#{characters.table.power}">Power</span>
-                            <span id="characterPowerBadge" class="badge text-bg-primary align-self-center"
+                            <span sec:authorize="isAuthenticated()"
+                                  id="characterPowerBadge" class="badge text-bg-primary align-self-center"
                                   th:text="${character.power} + ' DON'">0</span>
+                            <span sec:authorize="isAnonymous()"
+                                  class="badge text-bg-secondary align-self-center"
+                                  th:title="#{characters.power.hiddenHint}"
+                                  th:text="#{characters.power.hidden}">???</span>
                         </li>
                     </ul>
                 </div>

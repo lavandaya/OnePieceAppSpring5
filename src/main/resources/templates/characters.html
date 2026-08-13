@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout :: head(#{characters.title})}"></head>
 <body class="d-flex flex-column min-vh-100 bg-light">
 
@@ -106,7 +107,12 @@
                         <i class="bi bi-star-fill text-warning" th:if="${character.power >= 9.0}"></i>
                     </h5>
                     <p class="card-text">
-                        <span class="badge text-bg-primary" th:text="${character.power} + ' DON'">0 DON</span>
+                        <span sec:authorize="isAuthenticated()"
+                              class="badge text-bg-primary" th:text="${character.power} + ' DON'">0 DON</span>
+                        <span sec:authorize="isAnonymous()"
+                              class="badge text-bg-secondary"
+                              th:title="#{characters.power.hiddenHint}"
+                              th:text="#{characters.power.hidden}">???</span>
                         <span class="badge text-bg-info" th:text="${character.powertype}">TYPE</span>
                     </p>
                 </div>

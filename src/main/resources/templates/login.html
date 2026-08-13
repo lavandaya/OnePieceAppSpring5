@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{login.title})}"></head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title h3 mb-4" th:text="#{login.heading}">Sign in</h1>
+
+                    <div class="alert alert-danger" th:if="${param.error != null}"
+                         th:text="#{login.error}">Invalid credentials.</div>
+                    <div class="alert alert-secondary" th:if="${param.logout != null}"
+                         th:text="#{login.loggedOut}">Signed out.</div>
+                    <div class="alert alert-success" th:if="${param.registered != null}"
+                         th:text="#{login.registered}">Account created.</div>
+
+                    <form th:action="@{/login}" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label"
+                                   th:text="#{login.label.username}">Username</label>
+                            <input type="text" id="username" name="username" class="form-control"
+                                   autocomplete="username" required autofocus>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label"
+                                   th:text="#{login.label.password}">Password</label>
+                            <input type="password" id="password" name="password" class="form-control"
+                                   autocomplete="current-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span th:text="#{login.button}">Sign in</span>
+                        </button>
+                    </form>
+
+                    <hr>
+
+                    <p class="mb-2 fw-semibold" th:text="#{login.demoAccounts}">Demo accounts</p>
+                    <ul class="list-unstyled small text-muted mb-3">
+                        <li><code>luffy</code> / <code>password123</code></li>
+                        <li><code>zoro</code> / <code>password123</code></li>
+                        <li><code>admin</code> / <code>admin123</code></li>
+                    </ul>
+
+                    <p class="mb-0 small">
+                        <span th:text="#{login.noAccount}">No account yet?</span>
+                        <a th:href="@{/register}" th:text="#{nav.register}">Register</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+</body>
+</html>

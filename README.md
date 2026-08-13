@@ -539,3 +539,63 @@ HTTP/1.1 406
 Accept: application/json
 Content-Length: 0
 ```
+
+
+## Week 4
+
+### Seeded users
+
+These accounts are created by `src/main/resources/data.sql` when the application starts.
+Passwords are stored as BCrypt hashes; the plain values below are for testing only.
+
+| Username | Password      | Email                |
+|----------|---------------|----------------------|
+| `luffy`  | `password123` | luffy@strawhat.com   |
+| `zoro`   | `password123` | zoro@strawhat.com    |
+| `admin`  | `admin123`    | admin@onepiece.com   |
+
+The same list is shown on the login page.
+
+New accounts can also be created through the registration form at
+[http://localhost:8080/register](http://localhost:8080/register).
+
+### Public page
+
+[http://localhost:8080/characters](http://localhost:8080/characters) — the character
+overview is reachable by anyone, signed in or not.
+
+### Authenticated page
+
+[http://localhost:8080/characters/add](http://localhost:8080/characters/add) — adding a
+character requires an authenticated user. Anonymous visitors are redirected to the login page.
+
+All state-changing MVC actions are protected the same way: adding a character, adding a
+battle, updating a sword name, and deleting a character or a battle.
+
+### Information that differs for anonymous and authenticated users
+
+The exact power value (in DON) of a character is only shown to signed-in users. Anonymous
+visitors see a `???` placeholder instead, while the rest of the page stays fully accessible
+to them — they are not redirected to the login page.
+
+This applies consistently to every view that renders a power value:
+
+| Page                                                                                  | Where                    |
+|---------------------------------------------------------------------------------------|--------------------------|
+| [/characters](http://localhost:8080/characters)                                         | character cards          |
+| [/characters/1](http://localhost:8080/characters/1)                                     | detail page              |
+| [/characters/search](http://localhost:8080/characters/search)                           | result tables            |
+| [/battles/1](http://localhost:8080/battles/1)                                           | participants table       |
+
+Hiding the value in the UI is a presentation concern, not a security boundary: the REST API
+under `/api/characters` is still public in this step and returns the power value. Securing
+the API is part of week 5.
+
+### Security setup
+
+- Passwords are hashed with `BCryptPasswordEncoder` (strength 10). Each user has its own
+  salt, so `luffy` and `zoro` have different hashes despite sharing the same password.
+- `CustomUserDetailsService` loads the persisted `User` entity and exposes it to Spring
+  Security. Every user currently gets the `ROLE_USER` authority; multiple roles follow in week 5.
+- CSRF protection is temporarily disabled so that the AJAX features from weeks 2 and 3 keep
+  working unchanged. It is re-enabled in week 5.

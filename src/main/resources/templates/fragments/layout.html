@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:fragment="head(pageTitle)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta name="authenticated" th:content="${#authorization.expression('isAuthenticated()')}">
 </head>
 <body>
 
@@ -39,24 +41,46 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/characters/add}">
-                        <i class="bi bi-person-plus"></i> <span th:text="#{nav.addCharacter}">Add Character</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/battles/add}">
-                        <i class="bi bi-plus-circle"></i> <span th:text="#{nav.addBattle}">Add Battle</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" th:href="@{/characters/search}">
                         <i class="bi bi-search"></i> <span th:text="#{nav.search}">Search</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/history}">
-                        <i class="bi bi-clock-history"></i> <span th:text="#{nav.history}">History</span>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/characters/add}">
+                        <i class="bi bi-person-plus"></i> <span th:text="#{nav.addCharacter}">Add Character</span>
                     </a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/battles/add}">
+                        <i class="bi bi-plus-circle"></i> <span th:text="#{nav.addBattle}">Add Battle</span>
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="isAnonymous()">
+                    <a class="nav-link" th:href="@{/login}">
+                        <i class="bi bi-box-arrow-in-right"></i> <span th:text="#{nav.login}">Login</span>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="isAnonymous()">
+                    <a class="nav-link" th:href="@{/register}">
+                        <i class="bi bi-person-plus-fill"></i> <span th:text="#{nav.register}">Register</span>
+                    </a>
+                </li>
+
+                <li class="nav-item d-flex align-items-center" sec:authorize="isAuthenticated()">
+                    <span class="navbar-text text-light small me-2">
+                        <i class="bi bi-person-circle"></i>
+                        <span th:text="#{nav.loggedInAs}">Signed in as</span>
+                        <strong sec:authentication="name">username</strong>
+                    </span>
+                </li>
+                <li class="nav-item d-flex align-items-center" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span th:text="#{nav.logout}">Logout</span>
+                        </button>
+                    </form>
                 </li>
             </ul>
         </div>

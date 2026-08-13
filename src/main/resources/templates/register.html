@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{register.title})}"></head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title h3 mb-4" th:text="#{register.heading}">Create an account</h1>
+
+                    <form th:action="@{/register}" method="post" th:object="${registerViewModel}">
+                        <div class="mb-3">
+                            <label for="username" class="form-label"
+                                   th:text="#{register.label.username}">Username</label>
+                            <input type="text" class="form-control" th:field="*{username}"
+                                   th:errorclass="is-invalid" autocomplete="username" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}"
+                                 th:errors="*{username}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label"
+                                   th:text="#{register.label.email}">Email</label>
+                            <input type="email" class="form-control" th:field="*{email}"
+                                   th:errorclass="is-invalid" autocomplete="email" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+                                 th:errors="*{email}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label"
+                                   th:text="#{register.label.password}">Password</label>
+                            <input type="password" class="form-control" th:field="*{password}"
+                                   th:errorclass="is-invalid" autocomplete="new-password" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}"
+                                 th:errors="*{password}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label"
+                                   th:text="#{register.label.confirmPassword}">Confirm password</label>
+                            <input type="password" class="form-control" th:field="*{confirmPassword}"
+                                   th:errorclass="is-invalid" autocomplete="new-password" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}"
+                                 th:errors="*{confirmPassword}"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-person-plus"></i>
+                            <span th:text="#{register.button}">Create account</span>
+                        </button>
+                    </form>
+
+                    <hr>
+
+                    <p class="mb-0 small">
+                        <span th:text="#{register.haveAccount}">Already have an account?</span>
+                        <a th:href="@{/login}" th:text="#{nav.login}">Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+</body>
+</html>

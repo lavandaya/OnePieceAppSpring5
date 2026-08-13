@@ -30,3 +30,10 @@ INSERT INTO character_battles (character_id, battle_id) VALUES
 
 ALTER TABLE characters ALTER COLUMN character_id RESTART WITH 7;
 ALTER TABLE battles ALTER COLUMN battle_id RESTART WITH 9;
+
+INSERT INTO users (user_id, username, password, email, enabled) VALUES
+                                                                    (1, 'luffy', '$2a$10$otX76CQXwrcqXJSsYNOgXe6YtFEkSjSfbG3gFe2CpcJCbzjfWVevq', 'luffy@strawhat.com',  TRUE),
+                                                                    (2, 'zoro',  '$2a$10$otX76CQXwrcqXJSsYNOgXe6YtFEkSjSfbG3gFe2CpcJCbzjfWVevq', 'zoro@strawhat.com',   TRUE),
+                                                                    (3, 'admin', '$2a$10$ywZtQGbawmBrzq.bNaMigeamw7jBL3APJPYGTuby2Bya3yexzO36G', 'admin@onepiece.com',  TRUE);
+
+ALTER TABLE users ALTER COLUMN user_id RESTART WITH 4;
