@@ -1,4 +1,4 @@
-### Variables
+### Var
 @baseUrl = http://localhost:8080
 
 ### Get all characters - OK
