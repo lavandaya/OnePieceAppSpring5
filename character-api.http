@@ -38,3 +38,135 @@ DELETE {{baseUrl}}/api/characters/6
 
 ### Delete character - Not Found (already deleted above)
 DELETE {{baseUrl}}/api/characters/6
+
+
+### ─────────────── Week 3 ───────────────
+
+### Create character - Created
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Nico Robin",
+  "age": 28,
+  "appearance": "https://placehold.co/400x400/6b4c9a/ffffff?text=Robin",
+  "powertype": "DEVIL_FRUIT",
+  "power": 8.5,
+  "crewName": "Straw Hat Pirates"
+}
+
+### Create swordsman - Created
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Brook",
+  "age": 90,
+  "appearance": "https://placehold.co/400x400/3a3a3a/ffffff?text=Brook",
+  "powertype": "WILL",
+  "power": 7.5,
+  "crewName": "Straw Hat Pirates",
+  "swordName": "Soul Solid"
+}
+
+### Create character - Bad Request (constraint violations)
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Kaido",
+  "age": -5,
+  "appearance": "not-a-url",
+  "powertype": "DEVIL_FRUIT",
+  "power": 500
+}
+
+### Create character - Bad Request (unknown crew)
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Smoker",
+  "age": 36,
+  "appearance": "https://placehold.co/400x400/9aa0a6/000000?text=Smoker",
+  "powertype": "DEVIL_FRUIT",
+  "power": 6.0,
+  "crewName": "Marines"
+}
+
+### Create character - Bad Request (invalid enum value)
+POST {{baseUrl}}/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Shanks",
+  "age": 39,
+  "appearance": "https://placehold.co/400x400/b02c2c/ffffff?text=Shanks",
+  "powertype": "MAGIC",
+  "power": 9.5
+}
+
+### Create character - Unsupported Media Type
+POST {{baseUrl}}/api/characters
+Content-Type: text/plain
+Accept: application/json
+
+name=Shanks
+
+### Update character - OK
+PATCH {{baseUrl}}/api/characters/2
+Content-Type: application/json
+Accept: application/json
+
+{
+  "power": 9.5,
+  "swordName": "Enma"
+}
+
+### Update character - Bad Request
+PATCH {{baseUrl}}/api/characters/2
+Content-Type: application/json
+Accept: application/json
+
+{
+  "power": 500
+}
+
+### Update character - Not Found
+PATCH {{baseUrl}}/api/characters/999
+Content-Type: application/json
+Accept: application/json
+
+{
+  "power": 5.0
+}
+
+### Update character - Conflict (not a swordsman)
+PATCH {{baseUrl}}/api/characters/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "swordName": "Yoru"
+}
+
+### Update character - Unsupported Media Type
+PATCH {{baseUrl}}/api/characters/2
+Content-Type: text/plain
+Accept: application/json
+
+power=9.5
+
+### Update character - Not Acceptable
+PATCH {{baseUrl}}/api/characters/2
+Content-Type: application/json
+Accept: application/xml
+
+{
+  "power": 9.5
+}

@@ -206,4 +206,336 @@ HTTP/1.1 404
 Content-Type: application/json
 
 {"error": "Character with id=6 was not found"}
-```}
+```
+
+## Week 3
+
+### Creating a character - Created
+
+Request:
+```
+POST http://localhost:8080/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Nico Robin",
+  "age": 28,
+  "appearance": "https://placehold.co/400x400/6b4c9a/ffffff?text=Robin",
+  "powertype": "DEVIL_FRUIT",
+  "power": 8.5,
+  "crewName": "Straw Hat Pirates"
+}
+```
+
+Response:
+```
+HTTP/1.1 201
+Location: http://localhost:8080/api/characters/8
+Content-Type: application/json
+
+{
+  "id": 8,
+  "name": "Nico Robin",
+  "age": 28,
+  "appearance": "https://placehold.co/400x400/6b4c9a/ffffff?text=Robin",
+  "powertype": "DEVIL_FRUIT",
+  "power": 8.5,
+  "crewName": "Straw Hat Pirates",
+  "swordName": null
+}
+```
+
+### Creating a swordsman - Created
+
+Request:
+```
+POST http://localhost:8080/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Brook",
+  "age": 90,
+  "appearance": "https://placehold.co/400x400/3a3a3a/ffffff?text=Brook",
+  "powertype": "WILL",
+  "power": 7.5,
+  "crewName": "Straw Hat Pirates",
+  "swordName": "Soul Solid"
+}
+```
+
+Response:
+```
+HTTP/1.1 201
+Location: http://localhost:8080/api/characters/9
+Content-Type: application/json
+
+{
+  "id": 9,
+  "name": "Brook",
+  "age": 90,
+  "appearance": "https://placehold.co/400x400/3a3a3a/ffffff?text=Brook",
+  "powertype": "WILL",
+  "power": 7.5,
+  "crewName": "Straw Hat Pirates",
+  "swordName": "Soul Solid"
+}
+```
+
+### Creating a character - Bad Request (constraint violations)
+
+Request:
+```
+POST http://localhost:8080/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Kaido",
+  "age": -5,
+  "appearance": "not-a-url",
+  "powertype": "DEVIL_FRUIT",
+  "power": 500
+}
+```
+
+Response:
+```
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "appearance": "Appearance must be a valid http(s) URL",
+  "power": "Power may not exceed 100 DON",
+  "age": "Age cannot be negative"
+}
+```
+
+### Creating a character - Bad Request (unknown crew)
+
+Request:
+```
+POST http://localhost:8080/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Smoker",
+  "age": 36,
+  "appearance": "https://placehold.co/400x400/9aa0a6/000000?text=Smoker",
+  "powertype": "DEVIL_FRUIT",
+  "power": 6.0,
+  "crewName": "Marines"
+}
+```
+
+Response:
+```
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Crew 'Marines' was not found"
+}
+```
+
+### Creating a character - Bad Request (invalid enum value)
+
+Request:
+```
+POST http://localhost:8080/api/characters
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Shanks",
+  "age": 39,
+  "appearance": "https://placehold.co/400x400/b02c2c/ffffff?text=Shanks",
+  "powertype": "MAGIC",
+  "power": 9.5
+}
+```
+
+Response:
+```
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Request body is malformed or contains an invalid value"
+}
+```
+
+### Creating a character - Unsupported Media Type
+
+Request:
+```
+POST http://localhost:8080/api/characters
+Content-Type: text/plain
+Accept: application/json
+
+name=Shanks
+```
+
+Response:
+```
+HTTP/1.1 415
+Accept: application/json
+Content-Type: application/json
+
+{
+  "timestamp": "2026-08-13T13:09:30.303+00:00",
+  "status": 415,
+  "error": "Unsupported Media Type",
+  "message": "Content-Type 'text/plain' is not supported.",
+  "path": "/api/characters"
+}
+```
+
+### Updating a character - OK
+
+Request:
+```
+PATCH http://localhost:8080/api/characters/2
+Content-Type: application/json
+Accept: application/json
+
+{
+  "power": 9.5,
+  "swordName": "Enma"
+}
+```
+
+Response:
+```
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": 2,
+  "name": "Zoro",
+  "age": 20,
+  "appearance": "https://placehold.co/400x400/2a6f4e/ffffff?text=Zoro",
+  "powertype": "WILL",
+  "power": 9.5,
+  "crewName": "Straw Hat Pirates",
+  "swordName": "Enma"
+}
+```
+
+### Updating a character - Bad Request
+
+Request:
+```
+PATCH http://localhost:8080/api/characters/2
+Content-Type: application/json
+Accept: application/json
+
+{
+  "power": 500
+}
+```
+
+Response:
+```
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "power": "Power may not exceed 100 DON"
+}
+```
+
+### Updating a character - Not Found
+
+Request:
+```
+PATCH http://localhost:8080/api/characters/999
+Content-Type: application/json
+Accept: application/json
+
+{
+  "power": 5.0
+}
+```
+
+Response:
+```
+HTTP/1.1 404
+Content-Type: application/json
+
+{
+  "error": "Character with id=999 was not found"
+}
+```
+
+### Updating a character - Conflict
+
+Request:
+```
+PATCH http://localhost:8080/api/characters/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "swordName": "Yoru"
+}
+```
+
+Response:
+```
+HTTP/1.1 409
+Content-Type: application/json
+
+{
+  "message": "Character with id=1 is not a swordsman and has no sword"
+}
+```
+
+### Updating a character - Unsupported Media Type
+
+Request:
+```
+PATCH http://localhost:8080/api/characters/2
+Content-Type: text/plain
+Accept: application/json
+
+power=9.5
+```
+
+Response:
+```
+HTTP/1.1 415
+Accept: application/json
+Accept-Patch: application/json
+Content-Type: application/json
+
+{
+  "timestamp": "2026-08-13T13:11:14.102+00:00",
+  "status": 415,
+  "error": "Unsupported Media Type",
+  "message": "Content-Type 'text/plain' is not supported.",
+  "path": "/api/characters/2"
+}
+```
+
+### Updating a character - Not Acceptable
+
+Request:
+```
+PATCH http://localhost:8080/api/characters/2
+Content-Type: application/json
+Accept: application/xml
+
+{
+  "power": 9.5
+}
+```
+
+Response:
+```
+HTTP/1.1 406
+Accept: application/json
+Content-Length: 0
+```
