@@ -35,7 +35,9 @@ public class Character {
     @JoinColumn(name = "crew_name")
     private Crew crew;
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     protected Character() {
     }
@@ -64,6 +66,8 @@ public class Character {
     public Crew getCrew() { return crew; }
     public void setCrew(Crew crew) { this.crew = crew; }
 
+    public User getOwner() { return owner; }
+    public void setOwner(User owner) { this.owner = owner; }
 
     public void setName(String name) { this.name = name; }
     public void setAge(int age) { this.age = age; }

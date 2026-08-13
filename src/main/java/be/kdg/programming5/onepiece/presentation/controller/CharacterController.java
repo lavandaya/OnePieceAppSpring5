@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import be.kdg.programming5.onepiece.business.exception.CharacterNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -64,6 +66,8 @@ public class CharacterController {
         this.battleService = battleService;
     }
 
+
+
     @GetMapping({"/", "/characters"})
     public String showCharacters(@RequestParam(required = false) String crewName, Model model) {
         logger.debug("Loading characters page (crew filter = '{}')", crewName);
@@ -99,7 +103,7 @@ public class CharacterController {
 
     @PostMapping("/characters/add")
     public String addCharacter(@Valid @ModelAttribute("characterViewModel") CharacterViewModel viewModel,
-                               BindingResult bindingResult, Model model) {
+                               BindingResult bindingResult, Model model, Principal principal) {
         if (bindingResult.hasErrors()) {
             logger.debug("Add character form has {} error(s)", bindingResult.getErrorCount());
             model.addAttribute("crews", characterService.getAllCrews());
@@ -108,7 +112,8 @@ public class CharacterController {
         }
         characterService.addCharacter(viewModel.getName(), viewModel.getAge(),
                 viewModel.getAppearance(), viewModel.getPowertype(),
-                viewModel.getPower(), viewModel.getCrew().getName());
+                viewModel.getPower(), viewModel.getCrew().getName(),
+                principal != null ? principal.getName() : null);
         return "redirect:/characters";
     }
 

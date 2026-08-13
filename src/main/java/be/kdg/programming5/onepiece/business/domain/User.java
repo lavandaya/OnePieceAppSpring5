@@ -24,13 +24,18 @@ public class User {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role;
+
     protected User() {
     }
 
-    public User(String username, String password, String email) {
+    public User(String username, String password, String email, Role role) {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.role = role;
         this.enabled = true;
     }
 
@@ -41,10 +46,11 @@ public class User {
     public String getEmail() { return email; }
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public Role getRole() { return role; }
 
     @Override
     public String toString() {
-        return "User #" + id + " {" + username + ", " + email + "}";
+        return "User #" + id + " {" + username + ", " + email + ", role=" + role + "}";
     }
 
     @Override

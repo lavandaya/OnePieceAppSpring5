@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                         .withUsername(user.getUsername())
                         .password(user.getPassword())
                         .disabled(!user.isEnabled())
-                        .authorities(List.of(new SimpleGrantedAuthority("ROLE_USER")))
+                        .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())))
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("No user found with username '" + username + "'"));
     }

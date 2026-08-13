@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -67,8 +68,10 @@ public class CharacterRestController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CharacterDto> createCharacter(@Valid @RequestBody NewCharacterDto dto,
-                                                        UriComponentsBuilder uriBuilder) {
-        Character created = characterService.createCharacter(characterMapper.toEntity(dto), dto.crewName());
+                                                        UriComponentsBuilder uriBuilder,
+                                                        Principal principal) {
+        Character created = characterService.createCharacter(characterMapper.toEntity(dto), dto.crewName(),
+                principal != null ? principal.getName() : null);
 
         URI location = uriBuilder.path("/api/characters/{id}")
                 .buildAndExpand(created.getId())

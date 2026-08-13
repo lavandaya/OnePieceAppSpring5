@@ -21,11 +21,10 @@ public interface CharacterService {
     List<Character> findByMinBattles(int minBattles);
 
     void addCharacter(String name, int age, String appearance,
-                      Powertype powertype, double power, String crewName);
+                      Powertype powertype, double power, String crewName, String ownerUsername);
     void deleteCharacter(int id);
     void updateSwordName(int id, String swordName);
 
-    Character createCharacter(Character character, String crewName);
+    Character createCharacter(Character character, String crewName, String ownerUsername);
     Character updateCharacter(int id, CharacterUpdate update);
-
 }

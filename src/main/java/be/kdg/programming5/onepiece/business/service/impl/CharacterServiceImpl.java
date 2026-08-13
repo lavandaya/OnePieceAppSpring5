@@ -8,6 +8,7 @@ import be.kdg.programming5.onepiece.business.service.CharacterService;
 import be.kdg.programming5.onepiece.data.repository.CharacterBattleRepository;
 import be.kdg.programming5.onepiece.data.repository.CharacterRepository;
 import be.kdg.programming5.onepiece.data.repository.CrewRepository;
+import be.kdg.programming5.onepiece.data.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -30,12 +31,15 @@ public class CharacterServiceImpl implements CharacterService {
     private final CharacterRepository repository;
     private final CrewRepository crewRepository;
     private final CharacterBattleRepository characterBattleRepository;
+    private final UserRepository userRepository;
 
     public CharacterServiceImpl(CharacterRepository repository, CrewRepository crewRepository,
-                                CharacterBattleRepository characterBattleRepository) {
+                                CharacterBattleRepository characterBattleRepository,
+                                UserRepository userRepository) {
         this.repository = repository;
         this.crewRepository = crewRepository;
         this.characterBattleRepository = characterBattleRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -91,11 +95,14 @@ public class CharacterServiceImpl implements CharacterService {
     @Override
     @Transactional
     public void addCharacter(String name, int age, String appearance,
-                             Powertype powertype, double power, String crewName) {
+                             Powertype powertype, double power, String crewName, String ownerUsername) {
         Character character = new Character(name, age, appearance, powertype, power);
         crewRepository.findByName(crewName).ifPresent(character::setCrew);
+        if (ownerUsername != null) {
+            userRepository.findByUsername(ownerUsername).ifPresent(character::setOwner);
+        }
         repository.save(character);
-        logger.debug("Added character {} (crew='{}')", character, crewName);
+        logger.debug("Added character {} (crew='{}', owner='{}')", character, crewName, ownerUsername);
     }
 
     @Override
@@ -119,16 +126,18 @@ public class CharacterServiceImpl implements CharacterService {
         logger.debug("Updated sword name for character id={}", id);
     }
 
-
     @Override
     @Transactional
-    public Character createCharacter(Character character, String crewName) {
+    public Character createCharacter(Character character, String crewName, String ownerUsername) {
         if (crewName != null && !crewName.isBlank()) {
             character.setCrew(crewRepository.findByName(crewName)
                     .orElseThrow(() -> new CrewNotFoundException(crewName)));
         }
+        if (ownerUsername != null) {
+            userRepository.findByUsername(ownerUsername).ifPresent(character::setOwner);
+        }
         Character saved = repository.save(character);
-        logger.debug("Created character {} (crew='{}')", saved, crewName);
+        logger.debug("Created character {} (crew='{}', owner='{}')", saved, crewName, ownerUsername);
         return saved;
     }
 
