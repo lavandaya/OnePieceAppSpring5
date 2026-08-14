@@ -5,12 +5,15 @@ import be.kdg.programming5.onepiece.business.domain.Crew;
 import be.kdg.programming5.onepiece.business.domain.Powertype;
 import be.kdg.programming5.onepiece.business.exception.CharacterNotFoundException;
 import be.kdg.programming5.onepiece.business.service.CharacterService;
+import be.kdg.programming5.onepiece.config.CacheConfig;
 import be.kdg.programming5.onepiece.data.repository.CharacterBattleRepository;
 import be.kdg.programming5.onepiece.data.repository.CharacterRepository;
 import be.kdg.programming5.onepiece.data.repository.CrewRepository;
 import be.kdg.programming5.onepiece.data.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -78,7 +81,9 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
+    @Cacheable(cacheNames = CacheConfig.CHARACTER_SEARCH_CACHE, key = "#name")
     public List<Character> findByNameContaining(String name) {
+        logger.debug("Querying database for characters matching name='{}'", name);
         return repository.findByNameContainingIgnoreCase(name);
     }
 
@@ -94,6 +99,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = CacheConfig.CHARACTER_SEARCH_CACHE, allEntries = true)
     public void addCharacter(String name, int age, String appearance,
                              Powertype powertype, double power, String crewName, String ownerUsername) {
         Character character = new Character(name, age, appearance, powertype, power);
@@ -107,6 +113,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = CacheConfig.CHARACTER_SEARCH_CACHE, allEntries = true)
     @PreAuthorize("hasRole('ADMIN') or @characterSecurity.isOwner(#id, authentication)")
     public void deleteCharacter(int id) {
         if (!repository.existsById(id)) {
@@ -119,6 +126,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = CacheConfig.CHARACTER_SEARCH_CACHE, allEntries = true)
     @PreAuthorize("hasRole('ADMIN') or @characterSecurity.isOwner(#id, authentication)")
     public void updateSwordName(int id, String swordName) {
         if (!repository.existsById(id)) {
@@ -130,6 +138,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = CacheConfig.CHARACTER_SEARCH_CACHE, allEntries = true)
     public Character createCharacter(Character character, String crewName, String ownerUsername) {
         if (crewName != null && !crewName.isBlank()) {
             character.setCrew(crewRepository.findByName(crewName)
@@ -145,6 +154,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = CacheConfig.CHARACTER_SEARCH_CACHE, allEntries = true)
     @PreAuthorize("hasRole('ADMIN') or @characterSecurity.isOwner(#id, authentication)")
     public Character updateCharacter(int id, CharacterUpdate update) {
         Character character = repository.findByIdWithCrew(id)

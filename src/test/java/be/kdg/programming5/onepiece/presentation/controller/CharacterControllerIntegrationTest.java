@@ -6,12 +6,14 @@ import be.kdg.programming5.onepiece.business.domain.Crew;
 import be.kdg.programming5.onepiece.business.domain.Powertype;
 import be.kdg.programming5.onepiece.business.domain.Role;
 import be.kdg.programming5.onepiece.business.domain.User;
+import be.kdg.programming5.onepiece.config.CacheConfig;
 import be.kdg.programming5.onepiece.testsupport.TestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,6 +43,8 @@ class CharacterControllerIntegrationTest {
     private MockMvc mockMvc;
     @Autowired
     private TestDataFactory testData;
+    @Autowired
+    private CacheManager cacheManager;
 
     private Character luffy;
     private Character zoro;
@@ -48,6 +52,7 @@ class CharacterControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        cacheManager.getCache(CacheConfig.CHARACTER_SEARCH_CACHE).clear();
         Crew strawHats = testData.crew("Straw Hat Pirates", "Going Merry");
         Crew heartPirates = testData.crew("Heart Pirates", "Polar Tang");
 

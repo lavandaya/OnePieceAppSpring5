@@ -66,6 +66,8 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**", "/dist/**", "/webjars/**", "/error").permitAll()
                         .requestMatchers("/login", "/register").permitAll()
 
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .requestMatchers("/characters/add", "/battles/add").authenticated()
                         .requestMatchers(HttpMethod.POST, "/characters/*/sword").authenticated()
                         .requestMatchers(HttpMethod.POST, "/characters/*/delete").authenticated()

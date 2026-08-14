@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Bulk import characters')}"></head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container my-4">
+    <h1 class="mb-4">Bulk import characters</h1>
+
+    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <p class="text-muted">
+        Upload a CSV file with a header row followed by one character per line:
+        <code>name,age,appearance,powertype,power,crewName,swordName</code>. <code>crewName</code>
+        and <code>swordName</code> may be left empty. Processing happens in the background — this
+        page responds as soon as the upload is received, without waiting for every row to be
+        parsed and saved.
+    </p>
+
+    <form method="post" enctype="multipart/form-data" th:action="@{/admin/upload}" class="row g-3">
+        <div class="col-12 col-md-6">
+            <label for="file" class="form-label">CSV file</label>
+            <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-upload"></i> Upload
+            </button>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+</body>
+</html>

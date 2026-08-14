@@ -23,7 +23,12 @@ public interface CharacterRepository extends JpaRepository<Character, Integer> {
 
     List<Character> findByPower(double power);
 
-    List<Character> findByNameContainingIgnoreCase(String name);
+    // LEFT JOIN FETCH (rather than the derived-query default) so the returned entities are
+    // fully initialized before the transaction closes - required for CharacterServiceImpl's
+    // @Cacheable search to be safe to reuse across requests without a LazyInitializationException.
+    @Query("SELECT c FROM Character c LEFT JOIN FETCH c.crew LEFT JOIN FETCH c.owner "
+            + "WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%')) ORDER BY c.id")
+    List<Character> findByNameContainingIgnoreCase(@Param("name") String name);
 
     List<Character> findByPowerGreaterThanEqual(double minPower);
 

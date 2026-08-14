@@ -931,3 +931,59 @@ the SweetAlert2 confirmation with the npm icon and removes the card on confirm. 
 detail page, "Reload" shows dayjs-formatted relative battle dates, and "Quick edit" saves the
 power value via AJAX. The customized Sass variable (`$ocean-blue`) was confirmed applied via a
 computed-style check on `.bg-ocean`.
+
+## Week 12
+
+### Asynchronous CSV upload
+
+[http://localhost:8080/admin/upload](http://localhost:8080/admin/upload) (admin-only — link
+in the navbar only appears for `ADMIN`, route protected by `SecurityConfig`) lets an admin
+upload a CSV of characters to create in bulk.
+
+- `AdminController` (`presentation/controller/AdminController.java`) reads the uploaded file's
+  lines **synchronously** (just I/O, effectively instant) and immediately dispatches them to
+  `CsvImportService.importCharacters(...)`, then redirects with a flash message — it never waits
+  for a single character to actually be parsed or saved.
+- `CsvImportServiceImpl.importCharacters` (`business/service/impl/CsvImportServiceImpl.java`) is
+  `@Async("csvImportExecutor")` (executor bean in `config/AsyncConfig.java`, `@EnableAsync`), so
+  it runs on a pooled background thread, not the HTTP request thread. It parses each row, skips
+  and logs invalid ones instead of aborting the whole import, and reuses
+  `CharacterService.createCharacter` (the same path the REST API's `POST /api/characters` uses)
+  so crew lookup, optional `Swordsman` creation, and the uploading admin becoming the owner all
+  work exactly like they do everywhere else.
+- Sample file: [`src/main/resources/sample-characters.csv`](src/main/resources/sample-characters.csv)
+  (columns: `name,age,appearance,powertype,power,crewName,swordName`, the last two optional).
+
+**Verified manually**: uploaded the sample CSV via `curl` with a temporary `Thread.sleep(1500)`
+per row (removed again afterward, per the assignment's own tip) — the HTTP response came back in
+33ms while the 4-row import needed 6+ seconds in the background, and all 4 characters (including
+one `Swordsman` and one with no crew) were correctly present afterward.
+
+Tests: `CsvImportServiceImplTest` (plain Mockito, row parsing/crew/Swordsman logic and invalid-row
+handling) and `AdminControllerIntegrationTest` (route security — anonymous/`USER`/`ADMIN` — and
+that the controller dispatches to and never waits on `CsvImportService`, using a `@MockitoBean`
+to keep the test deterministic instead of asserting on background-thread timing).
+
+### Caching
+
+`CharacterServiceImpl.findByNameContaining` (backing both `GET /api/characters?name=` and the MVC
+search page) is `@Cacheable(cacheNames = "characterSearch", key = "#name")`
+(`config/CacheConfig.java`, `@EnableCaching` + a `ConcurrentMapCacheManager`) — a repeated search
+for the same name is served from memory instead of hitting the database again.
+
+`CharacterRepository.findByNameContainingIgnoreCase` was changed from a derived query to a
+`LEFT JOIN FETCH crew, owner` query. This matters specifically **because** of the caching: without
+it, the cached `Character` entities would carry lazy `crew`/`owner` proxies tied to a closed
+Hibernate session (`spring.jpa.open-in-view=false`), and a `LazyInitializationException` could
+surface later when the DTO mapper accesses them outside the original request. Fetching eagerly
+once means the cached entities are always fully initialized and safe to reuse.
+
+Every method that can change which characters match a search — `addCharacter`, `createCharacter`,
+`updateCharacter`, `updateSwordName`, `deleteCharacter` — is `@CacheEvict(cacheNames =
+"characterSearch", allEntries = true)`, so the cache never serves stale results after a mutation.
+
+Tests: `CharacterSearchCachingTest` (`business/service/CharacterSearchCachingTest.java`) proves
+both directions without relying on SQL-statement counting — a search result stays stale (proving
+the cache was hit, not the database) when a new matching row is inserted directly through the
+repository, and correctly changes after a create/delete goes through the service (proving
+eviction happened).
