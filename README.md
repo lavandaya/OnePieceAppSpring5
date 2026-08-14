@@ -819,3 +819,43 @@ while this repository's working copy for this session lives on GitHub. A GitLab-
 version of the same pipeline (`.gitlab-ci.yml`, with a `postgres` service and a `reports.junit`
 block) is ready to add once the project is pushed to GitLab — link to a successful pipeline
 goes here once that's done._
+
+## Week 10
+
+The client-side work for this week (npm, webpack, Sass, the SPA, the fetch calls) lives in a
+separate repository, **`OnePieceAppClient`**, per the assignment. This backend only gained
+the two new REST endpoints and the CORS/security wiring it calls.
+
+### New backend endpoints
+
+- `GET /api/battles?name=...` — search battles by (partial, case-insensitive) name. Public,
+  same as the rest of `GET /api/**`.
+- `POST /api/battles` — create a battle. Unlike every other state-changing endpoint in this
+  API, this one is `permitAll` **and** CSRF-exempt (see the comments on both rules in
+  `SecurityConfig`) — solely so the standalone Client project, which has no session/cookie of
+  its own, can exercise it while testing its "Add" form. `character-api.http` has runnable
+  examples (including the 400 case).
+
+### CORS
+
+`SecurityConfig` registers a `CorsConfigurationSource` scoped to `/api/**`, allowing only the
+Client project's dev-server origin (`client.cors.allowed-origin`, defaults to
+`http://localhost:8081`) with `GET/POST/PATCH/DELETE`. Requests from any other origin are
+rejected at the preflight (`OPTIONS`) stage.
+
+### Running both projects together
+
+```bash
+docker compose up -d
+./gradlew bootRun          # backend on :8080
+```
+
+```bash
+cd ../OnePieceAppClient
+npm install
+npm start                  # client dev server on :8081, opens automatically
+```
+
+Verified manually end-to-end: searching from the client (with and without matches) and adding
+a battle from the client's "Add" form, including the CORS preflight, both round-trip correctly
+against this backend.

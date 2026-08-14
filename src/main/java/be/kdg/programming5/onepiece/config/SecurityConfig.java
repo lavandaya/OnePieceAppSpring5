@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,16 +22,24 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    // Origin of the standalone Client project (week 10, npm/webpack dev server).
+    @Value("${client.cors.allowed-origin:http://localhost:8081}")
+    private String clientOrigin;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -38,8 +47,21 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of(clientOrigin));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE"));
+        configuration.setAllowedHeaders(List.of("*"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", configuration);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/webjars/**", "/error").permitAll()
                         .requestMatchers("/login", "/register").permitAll()
@@ -50,6 +72,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/battles/*/delete").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        // permitAll (not authenticated) only so the standalone Client project
+                        // (week 10, npm/webpack) can exercise this endpoint to test its "Add"
+                        // form without wiring up authentication there.
+                        .requestMatchers(HttpMethod.POST, "/api/battles").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/characters").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/characters/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/characters/**").authenticated()
@@ -87,6 +113,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        // CSRF is disabled only for this endpoint because it's called from the
+                        // separate Client project (week 10), which has no session/cookie to
+                        // carry a CSRF token; permitAll on it above already scopes the risk.
+                        .ignoringRequestMatchers(new AntPathRequestMatcher("/api/battles", "POST"))
                 )
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);
 

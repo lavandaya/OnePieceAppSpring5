@@ -86,6 +86,15 @@ public class BattleServiceImpl implements BattleService {
 
     @Override
     @Transactional
+    public Battle createBattle(String name, String location, LocalDateTime date, String winner) {
+        Battle battle = new Battle(name, location, date, winner);
+        Battle saved = repository.save(battle);
+        logger.debug("Created battle {}", saved);
+        return saved;
+    }
+
+    @Override
+    @Transactional
     public void deleteBattle(int id) {
         characterBattleRepository.deleteByBattleId(id);
         repository.deleteById(id);

@@ -14,5 +14,6 @@ public interface BattleService {
     List<Battle> getBattlesForCharacter(int characterId);
 
     void addBattle(String name, String location, LocalDateTime date, String winner, List<Integer> characterIds);
+    Battle createBattle(String name, String location, LocalDateTime date, String winner);
     void deleteBattle(int id);
 }

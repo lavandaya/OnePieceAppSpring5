@@ -524,3 +524,37 @@ X-XSRF-TOKEN: {{csrfToken}}
 DELETE {{baseUrl}}/api/characters/8
 Accept: application/json
 X-XSRF-TOKEN: {{csrfToken}}
+
+### Week 10 - battles endpoints used by the standalone Client project
+
+### Search battles by name - OK
+GET {{baseUrl}}/api/battles?name=Arlong
+Accept: application/json
+
+### Search battles - no matches
+GET {{baseUrl}}/api/battles?name=Nonexistent
+Accept: application/json
+
+### Create a battle - Created (permitAll + CSRF-exempt, for the Client project only)
+POST {{baseUrl}}/api/battles
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Water 7 Clash",
+  "location": "Water 7",
+  "date": "2026-01-01T10:00:00",
+  "winner": "Franky"
+}
+
+### Create a battle - Bad Request (blank fields)
+POST {{baseUrl}}/api/battles
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "",
+  "location": "",
+  "date": "2026-01-01T10:00:00",
+  "winner": ""
+}
