@@ -39,3 +39,6 @@ HELP.md
 *.old
 *.bak
 *.orig
+
+# Local-only notes (not part of the submitted repo)
+GITLAB_CI_SETUP.local.md

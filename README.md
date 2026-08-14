@@ -766,3 +766,56 @@ visible)._
   sometimes got a raw JSON 401 instead of a redirect to `/login`, depending on the `Accept`
   header. Fixed by explicitly registering a second, catch-all entry (`AnyRequestMatcher` →
   `LoginUrlAuthenticationEntryPoint("/login")`) so the two entries are mutually exhaustive.
+
+## Week 9
+
+### Running the tests
+
+Same single command as week 8, no separate step needed:
+
+```bash
+./gradlew test
+```
+
+### Mocking tests
+
+- `CharacterRestControllerMockTest`
+  (`src/test/java/.../presentation/controller/api/CharacterRestControllerMockTest.java`) —
+  `@WebMvcTest(CharacterRestController.class)` slice test for `POST /api/characters`, with
+  `CharacterService`, `BattleService`, `CharacterMapper` and `BattleMapper` all replaced by
+  `@MockitoBean`. Covers: authenticated success (201, `Location` header, owner becomes the
+  authenticated user), an unauthenticated call being rejected before it ever reaches the
+  service, a validation failure (400, service never called), a business exception from the
+  mocked service (unknown crew → 400), and a missing CSRF token (403).
+- `CharacterServiceImplTest`
+  (`src/test/java/.../business/service/impl/CharacterServiceImplTest.java`) — plain Mockito
+  unit tests (`@ExtendWith(MockitoExtension.class)`, `@Mock`/`@InjectMocks`, no Spring context)
+  for `addCharacter` and `createCharacter`, with `CharacterRepository`, `CrewRepository` and
+  `UserRepository` all mocked. Covers known/unknown crew, present/absent owner, and the
+  unknown-crew failure path.
+
+### `verify` tests
+
+Both classes above use `verify(...)`, several with specific arguments and `ArgumentCaptor`:
+
+- `CharacterRestControllerMockTest` — e.g. `verify(characterService).createCharacter(entity, "Straw Hat Pirates", "luffy")` and `verify(characterService, never()).createCharacter(any(), any(), any())` on the rejected/invalid paths.
+- `CharacterServiceImplTest` — e.g. `addCharacter_withKnownCrewAndOwner_setsBothAndSaves` captures the `Character` passed to `characterRepository.save(...)` and asserts its `crew`/`owner`; `addCharacter_withNullOwnerUsername_...` asserts `verify(userRepository, never()).findByUsername(any())`.
+
+### CI pipeline
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR, with two
+sequential jobs as required:
+
+- **build** — compiles the project (`./gradlew build -x test`), with Gradle dependency/build
+  caching via `actions/setup-java`'s built-in `cache: gradle`.
+- **test** — depends on `build` (reusing its cache), spins up a `postgres:16-alpine` service
+  container, points `spring.datasource.*` at it via environment variables (overriding
+  `application-test.properties`'s local port without touching the file, so `./gradlew test`
+  still works unchanged against the Docker Compose databases locally), runs `./gradlew test`,
+  and publishes a JUnit test report plus the raw HTML report as workflow artifacts.
+
+_The course explicitly asks for this pipeline (and its JUnit report link) on **GitLab**,
+while this repository's working copy for this session lives on GitHub. A GitLab-flavored
+version of the same pipeline (`.gitlab-ci.yml`, with a `postgres` service and a `reports.junit`
+block) is ready to add once the project is pushed to GitLab — link to a successful pipeline
+goes here once that's done._
