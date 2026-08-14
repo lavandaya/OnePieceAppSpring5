@@ -9,6 +9,7 @@ import be.kdg.programming5.onepiece.business.domain.User;
 import be.kdg.programming5.onepiece.business.exception.CharacterNotFoundException;
 import be.kdg.programming5.onepiece.business.exception.CrewNotFoundException;
 import be.kdg.programming5.onepiece.business.exception.NotASwordsmanException;
+import be.kdg.programming5.onepiece.config.CacheConfig;
 import be.kdg.programming5.onepiece.data.repository.CharacterRepository;
 import be.kdg.programming5.onepiece.data.repository.CrewRepository;
 import be.kdg.programming5.onepiece.testsupport.TestDataFactory;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -38,6 +40,8 @@ class CharacterServiceIntegrationTest {
     private CrewRepository crewRepository;
     @Autowired
     private TestDataFactory testData;
+    @Autowired
+    private CacheManager cacheManager;
 
     private Character character;
     private Swordsman swordsman;
@@ -46,6 +50,7 @@ class CharacterServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        cacheManager.getCache(CacheConfig.CHARACTER_SEARCH_CACHE).clear();
         Crew crew = crewRepository.save(new Crew("Straw Hat Pirates", true, "Going Merry"));
 
         character = new Character("Luffy", 18, "img", Powertype.DEVIL_FRUIT, 10);
@@ -176,5 +181,31 @@ class CharacterServiceIntegrationTest {
 
         assertThatThrownBy(() -> characterService.updateSwordName(id, "Enma"))
                 .isInstanceOf(AccessDeniedException.class);
+    }
+
+    // --- findByNameContaining: LIKE metacharacter escaping ---
+
+    @Test
+    void findByNameContaining_underscoreInSearchTerm_isTreatedLiterallyNotAsWildcard() {
+        characterRepository.save(new Character("Za_ro", 20, "img", Powertype.WILL, 5));
+        characterRepository.save(new Character("Zazro", 20, "img", Powertype.WILL, 5));
+
+        // Without escaping, "_" is a SQL LIKE wildcard matching any single character, so this
+        // search would incorrectly also match "Zazro".
+        assertThat(characterService.findByNameContaining("Za_ro"))
+                .extracting(Character::getName)
+                .containsExactly("Za_ro");
+    }
+
+    @Test
+    void findByNameContaining_percentInSearchTerm_isTreatedLiterallyNotAsWildcard() {
+        characterRepository.save(new Character("3%5", 20, "img", Powertype.WILL, 5));
+        characterRepository.save(new Character("3005", 20, "img", Powertype.WILL, 5));
+
+        // Without escaping, "%" in the search term is itself a wildcard, so "3%5" would match
+        // "contains 3, then anything, then 5" and incorrectly also match "3005".
+        assertThat(characterService.findByNameContaining("3%5"))
+                .extracting(Character::getName)
+                .containsExactly("3%5");
     }
 }

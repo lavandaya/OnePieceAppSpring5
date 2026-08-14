@@ -19,7 +19,11 @@ export function validateAddCharacterFields({ name, age, appearance, power }) {
 
     if (
         appearance !== null
-        && !isURL(appearance, { protocols: ["http", "https"], require_protocol: true })
+        && !isURL(appearance, {
+            protocols: ["http", "https"],
+            require_protocol: true,
+            require_tld: false,
+        })
     ) {
         errors.appearance = "Appearance must be a valid http(s) URL";
     }

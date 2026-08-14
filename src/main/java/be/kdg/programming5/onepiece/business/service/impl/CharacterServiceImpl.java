@@ -3,7 +3,9 @@ package be.kdg.programming5.onepiece.business.service.impl;
 import be.kdg.programming5.onepiece.business.domain.Character;
 import be.kdg.programming5.onepiece.business.domain.Crew;
 import be.kdg.programming5.onepiece.business.domain.Powertype;
+import be.kdg.programming5.onepiece.business.domain.User;
 import be.kdg.programming5.onepiece.business.exception.CharacterNotFoundException;
+import be.kdg.programming5.onepiece.business.service.CharacterImport;
 import be.kdg.programming5.onepiece.business.service.CharacterService;
 import be.kdg.programming5.onepiece.config.CacheConfig;
 import be.kdg.programming5.onepiece.data.repository.CharacterBattleRepository;
@@ -22,7 +24,9 @@ import be.kdg.programming5.onepiece.business.exception.CrewNotFoundException;
 import be.kdg.programming5.onepiece.business.exception.NotASwordsmanException;
 import be.kdg.programming5.onepiece.business.service.CharacterUpdate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -84,7 +88,13 @@ public class CharacterServiceImpl implements CharacterService {
     @Cacheable(cacheNames = CacheConfig.CHARACTER_SEARCH_CACHE, key = "#name")
     public List<Character> findByNameContaining(String name) {
         logger.debug("Querying database for characters matching name='{}'", name);
-        return repository.findByNameContainingIgnoreCase(name);
+        return repository.findByNameContainingIgnoreCase(escapeLike(name));
+    }
+
+    // Escapes LIKE metacharacters so a search for e.g. "50%" or "Za_o" matches that literal
+    // text instead of treating % / _ as SQL wildcards. Paired with ESCAPE '\' in the query.
+    private static String escapeLike(String value) {
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
     @Override
@@ -190,6 +200,34 @@ public class CharacterServiceImpl implements CharacterService {
         return character;
     }
 
+    @Override
+    @Transactional
+    @CacheEvict(cacheNames = CacheConfig.CHARACTER_SEARCH_CACHE, allEntries = true)
+    public int createCharactersBulk(List<CharacterImport> imports, String ownerUsername) {
+        User owner = ownerUsername != null ? userRepository.findByUsername(ownerUsername).orElse(null) : null;
+        Map<String, Crew> crewCache = new HashMap<>();
+        int saved = 0;
 
+        for (CharacterImport item : imports) {
+            Character character = item.character();
+            String crewName = item.crewName();
+
+            if (crewName != null) {
+                Crew crew = crewCache.computeIfAbsent(crewName, name -> crewRepository.findByName(name).orElse(null));
+                if (crew == null) {
+                    logger.warn("Skipped character '{}': crew '{}' was not found", character.getName(), crewName);
+                    continue;
+                }
+                character.setCrew(crew);
+            }
+
+            character.setOwner(owner);
+            repository.save(character);
+            saved++;
+        }
+
+        logger.debug("Bulk-created {} of {} character(s) (owner='{}')", saved, imports.size(), ownerUsername);
+        return saved;
+    }
 
 }

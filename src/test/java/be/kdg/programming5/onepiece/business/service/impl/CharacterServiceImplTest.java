@@ -5,6 +5,7 @@ import be.kdg.programming5.onepiece.business.domain.Crew;
 import be.kdg.programming5.onepiece.business.domain.Powertype;
 import be.kdg.programming5.onepiece.business.domain.User;
 import be.kdg.programming5.onepiece.business.exception.CrewNotFoundException;
+import be.kdg.programming5.onepiece.business.service.CharacterImport;
 import be.kdg.programming5.onepiece.data.repository.CharacterBattleRepository;
 import be.kdg.programming5.onepiece.data.repository.CharacterRepository;
 import be.kdg.programming5.onepiece.data.repository.CrewRepository;
@@ -16,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -131,5 +133,54 @@ class CharacterServiceImplTest {
 
         verify(crewRepository, never()).findByName(any());
         verify(characterRepository).save(toCreate);
+    }
+
+    // --- createCharactersBulk ---
+
+    @Test
+    void createCharactersBulk_resolvesOwnerOnceAndCrewOncePerDistinctName() {
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(owner));
+        when(crewRepository.findByName("Straw Hat Pirates")).thenReturn(Optional.of(crew));
+        when(characterRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<CharacterImport> imports = List.of(
+                new CharacterImport(new Character("Jinbe", 45, "img", Powertype.WILL, 8.0), "Straw Hat Pirates"),
+                new CharacterImport(new Character("Brook", 90, "img", Powertype.WILL, 7.5), "Straw Hat Pirates"),
+                new CharacterImport(new Character("Boa Hancock", 33, "img", Powertype.DEVIL_FRUIT, 9.0), null));
+
+        int saved = service.createCharactersBulk(imports, "admin");
+
+        assertThat(saved).isEqualTo(3);
+        verify(userRepository, times(1)).findByUsername("admin");
+        verify(crewRepository, times(1)).findByName("Straw Hat Pirates");
+        verify(characterRepository, times(3)).save(any());
+    }
+
+    @Test
+    void createCharactersBulk_unknownCrew_skipsThatRowButSavesTheRest() {
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(owner));
+        when(crewRepository.findByName("Marines")).thenReturn(Optional.empty());
+        when(characterRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<CharacterImport> imports = List.of(
+                new CharacterImport(new Character("Smoker", 36, "img", Powertype.DEVIL_FRUIT, 6.0), "Marines"),
+                new CharacterImport(new Character("Boa Hancock", 33, "img", Powertype.DEVIL_FRUIT, 9.0), null));
+
+        int saved = service.createCharactersBulk(imports, "admin");
+
+        assertThat(saved).isEqualTo(1);
+        verify(characterRepository, times(1)).save(any());
+    }
+
+    @Test
+    void createCharactersBulk_nullOwnerUsername_neverQueriesUserRepository() {
+        when(characterRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<CharacterImport> imports = List.of(
+                new CharacterImport(new Character("Boa Hancock", 33, "img", Powertype.DEVIL_FRUIT, 9.0), null));
+
+        service.createCharactersBulk(imports, null);
+
+        verify(userRepository, never()).findByUsername(any());
     }
 }
