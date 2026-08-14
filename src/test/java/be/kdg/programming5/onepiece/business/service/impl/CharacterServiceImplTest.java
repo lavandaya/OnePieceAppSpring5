@@ -52,8 +52,6 @@ class CharacterServiceImplTest {
         owner = new User("luffy", "hash", "luffy@onepiece.com", be.kdg.programming5.onepiece.business.domain.Role.USER);
     }
 
-    // --- addCharacter ---
-
     @Test
     void addCharacter_withKnownCrewAndOwner_setsBothAndSaves() {
         when(crewRepository.findByName("Straw Hat Pirates")).thenReturn(Optional.of(crew));
@@ -92,8 +90,6 @@ class CharacterServiceImplTest {
         verify(characterRepository).save(captor.capture());
         assertThat(captor.getValue().getOwner()).isNull();
     }
-
-    // --- createCharacter ---
 
     @Test
     void createCharacter_withKnownCrew_setsCrewAndOwnerAndReturnsSavedEntity() {
@@ -134,8 +130,6 @@ class CharacterServiceImplTest {
         verify(crewRepository, never()).findByName(any());
         verify(characterRepository).save(toCreate);
     }
-
-    // --- createCharactersBulk ---
 
     @Test
     void createCharactersBulk_resolvesOwnerOnceAndCrewOncePerDistinctName() {

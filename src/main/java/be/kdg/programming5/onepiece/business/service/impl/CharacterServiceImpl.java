@@ -91,8 +91,6 @@ public class CharacterServiceImpl implements CharacterService {
         return repository.findByNameContainingIgnoreCase(escapeLike(name));
     }
 
-    // Escapes LIKE metacharacters so a search for e.g. "50%" or "Za_o" matches that literal
-    // text instead of treating % / _ as SQL wildcards. Paired with ESCAPE '\' in the query.
     private static String escapeLike(String value) {
         return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }

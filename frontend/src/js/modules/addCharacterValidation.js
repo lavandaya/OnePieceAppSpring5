@@ -2,10 +2,6 @@ import validator from "validator";
 
 const { isURL, isInt, isFloat, isLength } = validator;
 
-// Client-side validation for the "Quick add" character form, using the
-// `validator` npm package. This runs before the AJAX call so obviously
-// invalid input never leaves the browser; the server (Bean Validation)
-// remains the source of truth and is still checked on every request.
 export function validateAddCharacterFields({ name, age, appearance, power }) {
     const errors = {};
 

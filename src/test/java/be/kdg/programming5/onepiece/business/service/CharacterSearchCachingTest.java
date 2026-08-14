@@ -40,9 +40,6 @@ class CharacterSearchCachingTest {
         List<Character> first = characterService.findByNameContaining("Luffy");
         assertThat(first).hasSize(1);
 
-        // Bypasses the service (and its @CacheEvict) on purpose: a new matching row is now in the
-        // database, but the second call below should still see the stale, cached result - proof
-        // that it never re-queried the database for the same search term.
         characterRepository.save(new Character("Luffy Jr", 10, "img", Powertype.WILL, 2));
 
         List<Character> second = characterService.findByNameContaining("Luffy");

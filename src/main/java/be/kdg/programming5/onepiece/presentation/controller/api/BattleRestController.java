@@ -35,8 +35,6 @@ public class BattleRestController {
         return battleMapper.toDtoList(battleService.findBattles(name, fromDate));
     }
 
-    // permitAll on this endpoint (see SecurityConfig) is only there so the standalone
-    // Client project (week 10, npm/webpack) can exercise it without wiring up authentication.
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BattleDto> createBattle(@Valid @RequestBody NewBattleDto dto,
                                                   UriComponentsBuilder uriBuilder) {

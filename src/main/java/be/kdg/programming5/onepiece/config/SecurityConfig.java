@@ -37,7 +37,6 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    // Origin of the standalone Client project (week 10, npm/webpack dev server).
     @Value("${client.cors.allowed-origin:http://localhost:8081}")
     private String clientOrigin;
 
@@ -74,9 +73,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/battles/*/delete").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-                        // permitAll (not authenticated) only so the standalone Client project
-                        // (week 10, npm/webpack) can exercise this endpoint to test its "Add"
-                        // form without wiring up authentication there.
                         .requestMatchers(HttpMethod.POST, "/api/battles").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/characters").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/characters/**").authenticated()
@@ -93,10 +89,6 @@ public class SecurityConfig {
                         response.getWriter().write(
                                 "{\"message\":\"Authentication is required to perform this action\"}");
                     };
-                    // Two entries so /api/** always gets JSON and every other path always
-                    // redirects to /login, regardless of insertion order or Accept header:
-                    // with only one matcher registered, Spring uses it as the entry point
-                    // for ALL unmatched requests too, not just the ones it matches.
                     ex.defaultAuthenticationEntryPointFor(apiEntryPoint, new AntPathRequestMatcher("/api/**"));
                     ex.defaultAuthenticationEntryPointFor(
                             new LoginUrlAuthenticationEntryPoint("/login"), AnyRequestMatcher.INSTANCE);
@@ -115,9 +107,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                        // CSRF is disabled only for this endpoint because it's called from the
-                        // separate Client project (week 10), which has no session/cookie to
-                        // carry a CSRF token; permitAll on it above already scopes the risk.
                         .ignoringRequestMatchers(new AntPathRequestMatcher("/api/battles", "POST"))
                 )
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);

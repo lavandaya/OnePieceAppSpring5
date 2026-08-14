@@ -1,11 +1,8 @@
-// Customize Bootstrap's Sass variables before importing it.
 $primary: #d62828;
 $secondary: #1b3a5b;
 $font-family-sans-serif: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
 @import "bootstrap/scss/bootstrap";
-
-// --- idiomatic SCSS below: variables, nesting, a mixin, and a loop ---
 
 $ocean-blue: #1b3a5b;
 $card-lift: -4px;
@@ -49,8 +46,6 @@ nav {
   object-fit: cover;
 }
 
-// Table row highlight strengths for high-power characters, generated with a loop
-// (idiomatic SCSS: @for + interpolation), instead of hand-writing each variant.
 @for $i from 1 through 3 {
   .power-highlight-#{$i} {
     box-shadow: inset 0 0 0 #{$i}px $primary;

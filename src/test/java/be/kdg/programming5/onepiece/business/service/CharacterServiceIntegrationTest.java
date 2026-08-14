@@ -105,8 +105,6 @@ class CharacterServiceIntegrationTest {
                 .isInstanceOf(NotASwordsmanException.class);
     }
 
-    // --- Role verification: only the owner or an ADMIN may update/delete a character ---
-
     @Test
     @WithMockUser(username = "luffy", roles = "USER")
     void updateCharacter_byOwner_succeeds() {
@@ -183,15 +181,11 @@ class CharacterServiceIntegrationTest {
                 .isInstanceOf(AccessDeniedException.class);
     }
 
-    // --- findByNameContaining: LIKE metacharacter escaping ---
-
     @Test
     void findByNameContaining_underscoreInSearchTerm_isTreatedLiterallyNotAsWildcard() {
         characterRepository.save(new Character("Za_ro", 20, "img", Powertype.WILL, 5));
         characterRepository.save(new Character("Zazro", 20, "img", Powertype.WILL, 5));
 
-        // Without escaping, "_" is a SQL LIKE wildcard matching any single character, so this
-        // search would incorrectly also match "Zazro".
         assertThat(characterService.findByNameContaining("Za_ro"))
                 .extracting(Character::getName)
                 .containsExactly("Za_ro");
@@ -202,8 +196,6 @@ class CharacterServiceIntegrationTest {
         characterRepository.save(new Character("3%5", 20, "img", Powertype.WILL, 5));
         characterRepository.save(new Character("3005", 20, "img", Powertype.WILL, 5));
 
-        // Without escaping, "%" in the search term is itself a wildcard, so "3%5" would match
-        // "contains 3, then anything, then 5" and incorrectly also match "3005".
         assertThat(characterService.findByNameContaining("3%5"))
                 .extracting(Character::getName)
                 .containsExactly("3%5");
