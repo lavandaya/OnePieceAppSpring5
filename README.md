@@ -35,6 +35,10 @@ To stop the database:
 docker compose down
 ```
 
+The embedded frontend's built assets (`src/main/resources/static/dist/`) are committed, so the
+steps above are all that's needed to run the app — Node.js is **not** required just to start it.
+Node is only needed if you're changing frontend source under `frontend/` (see Week 11 below).
+
 
 ## Week 2
 
@@ -859,3 +863,71 @@ npm start                  # client dev server on :8081, opens automatically
 Verified manually end-to-end: searching from the client (with and without matches) and adding
 a battle from the client's "Add" form, including the CORS preflight, both round-trip correctly
 against this backend.
+
+## Week 11
+
+The MVC pages' JavaScript and CSS were migrated from plain `static/js/*.js` + `static/css/style.css`
+into an embedded npm/webpack project at [`frontend/`](frontend), replacing per-page `<script>` tags
+with a single bundle (`/dist/main.js`) loaded once from `fragments/layout.html`. Each page's
+behavior lives in its own ES module under `frontend/src/js/modules/`, self-guarding on the presence
+of its page's DOM elements — the same pattern the old scripts already used — so one bundle safely
+covers every MVC page.
+
+### Build instructions (frontend)
+
+```bash
+cd frontend
+npm install
+npm run build        # writes to ../src/main/resources/static/dist/
+npm run lint          # ESLint
+npm run format         # dprint, writes formatting fixes
+npm run format:check   # dprint, fails if anything is unformatted
+```
+
+The build output is committed, so re-running `npm run build` (and committing the result) is only
+needed after changing something under `frontend/src`.
+
+### Sass
+
+`frontend/src/scss/main.scss` imports Bootstrap through Sass with customized `$primary`/
+`$secondary` variables, plus project SCSS using nesting, a `@mixin`, and a `@for` loop (migrated
+from the old `style.css`).
+
+### Bootstrap Icon added via npm
+
+The delete-confirmation dialog (see below) uses `bootstrap-icons/icons/trash3-fill.svg`, imported
+directly in JS (via `import trashIconSvg from "bootstrap-icons/icons/trash3-fill.svg"`, webpack
+`asset/source`) — sourced from the npm package, not the `webjars` copy the rest of the app's
+`<i class="bi ...">` icons still use.
+Source: [`frontend/src/js/modules/characterDelete.js`](frontend/src/js/modules/characterDelete.js).
+Visible at [http://localhost:8080/characters](http://localhost:8080/characters) (signed in) —
+click the trash icon on any character you own.
+
+### Custom client-side form validation
+
+The "Quick add" character form on
+[http://localhost:8080/characters](http://localhost:8080/characters) (signed in) is validated with
+the [`validator`](https://www.npmjs.com/package/validator) npm package before the AJAX call is
+made — name length, age range, `appearance` restricted to `http(s)` URLs (stricter than the native
+`type="url"` check), and power range.
+Source: [`frontend/src/js/modules/addCharacterValidation.js`](frontend/src/js/modules/addCharacterValidation.js),
+wired into [`frontend/src/js/modules/characterAdd.js`](frontend/src/js/modules/characterAdd.js).
+
+### JavaScript dependencies added
+
+| Package | Where it's used | What it does for the user |
+|---|---|---|
+| [`sweetalert2`](https://www.npmjs.com/package/sweetalert2) | [`frontend/src/js/modules/characterDelete.js`](frontend/src/js/modules/characterDelete.js) | Replaces the native `confirm()` on [/characters](http://localhost:8080/characters) with a styled confirm dialog (with the npm-sourced trash icon above) before deleting a character. |
+| [`dayjs`](https://www.npmjs.com/package/dayjs) (+ `relativeTime` plugin) | [`frontend/src/js/modules/characterBattles.js`](frontend/src/js/modules/characterBattles.js) | Formats each battle's date on a character's detail page (e.g. `/characters/1`) as `2005-07-23 12:20 (21 years ago)` when the "Reload" button is clicked. |
+| [`validator`](https://www.npmjs.com/package/validator) | see above | Custom client-side form validation. |
+| [`bootstrap-icons`](https://www.npmjs.com/package/bootstrap-icons) | see above | Source of the npm-added icon. |
+
+### Verified manually
+
+Logged in as `luffy` on [http://localhost:8080/characters](http://localhost:8080/characters):
+the invalid-URL case in the Quick-add form is rejected client-side (no network call) with the
+`validator`-driven message; a valid submission creates the character via AJAX; deleting it shows
+the SweetAlert2 confirmation with the npm icon and removes the card on confirm. On a character's
+detail page, "Reload" shows dayjs-formatted relative battle dates, and "Quick edit" saves the
+power value via AJAX. The customized Sass variable (`$ocean-blue`) was confirmed applied via a
+computed-style check on `.bg-ocean`.

@@ -1,0 +1,58 @@
+// Customize Bootstrap's Sass variables before importing it.
+$primary: #d62828;
+$secondary: #1b3a5b;
+$font-family-sans-serif: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+@import "bootstrap/scss/bootstrap";
+
+// --- idiomatic SCSS below: variables, nesting, a mixin, and a loop ---
+
+$ocean-blue: #1b3a5b;
+$card-lift: -4px;
+
+@mixin hover-lift($distance) {
+  transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &:hover {
+    transform: translateY($distance);
+  }
+}
+
+.bg-ocean {
+  background-color: $ocean-blue;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+
+  nav & {
+    margin-bottom: 0;
+  }
+}
+
+nav {
+  a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 0.25rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.card {
+  @include hover-lift($card-lift);
+}
+
+.character-img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+// Table row highlight strengths for high-power characters, generated with a loop
+// (idiomatic SCSS: @for + interpolation), instead of hand-writing each variant.
+@for $i from 1 through 3 {
+  .power-highlight-#{$i} {
+    box-shadow: inset 0 0 0 #{$i}px $primary;
+  }
+}

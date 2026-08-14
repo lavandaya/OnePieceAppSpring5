@@ -63,7 +63,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/webjars/**", "/error").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/dist/**", "/webjars/**", "/error").permitAll()
                         .requestMatchers("/login", "/register").permitAll()
 
                         .requestMatchers("/characters/add", "/battles/add").authenticated()

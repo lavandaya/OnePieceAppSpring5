@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${pageTitle}">One Piece</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
     <meta name="authenticated" th:content="${#authorization.expression('isAuthenticated()')}">
+    <script th:src="@{/dist/main.js}" defer></script>
 </head>
 <body>
 
@@ -96,7 +95,6 @@
 
 <th:block th:fragment="scripts">
     <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
-    <script th:src="@{/js/validation.js}"></script>
 </th:block>
 
 </body>
