@@ -8,11 +8,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface CharacterBattleRepository extends JpaRepository<CharacterBattle, Integer> {
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM CharacterBattle cb WHERE cb.character.id = :characterId")
     void deleteByCharacterId(@Param("characterId") int characterId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM CharacterBattle cb WHERE cb.battle.id = :battleId")
     void deleteByBattleId(@Param("battleId") int battleId);
 }

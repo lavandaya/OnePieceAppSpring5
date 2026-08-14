@@ -712,3 +712,57 @@ interfere with each other's data.
   (`@SpringBootTest`, integration tests)
 - `@WithMockUser`-based tests live in `CharacterServiceIntegrationTest`, since
   `updateCharacter` / `deleteCharacter` / `updateSwordName` are annotated with `@PreAuthorize`
+
+## Week 8
+
+### Running the tests
+
+```bash
+./gradlew test
+```
+
+No extra profile flag is needed on the command line: every test class activates the `test`
+profile itself via `@ActiveProfiles("test")`, so `./gradlew test` always talks to
+`onepiece_test_db` (port 5434) regardless of what `spring.profiles.active` is set to for
+`bootRun`. Both Postgres containers (`onepiece_db` and `onepiece_test_db`) must be running
+(`docker compose up -d`) before running the tests.
+
+### Test classes
+
+- **MVC integration tests**: `CharacterControllerIntegrationTest`
+  (`src/test/java/.../presentation/controller/CharacterControllerIntegrationTest.java`) — covers
+  the character overview, search, and detail pages, including the anonymous-vs-authenticated
+  behavior (hidden power value, `/characters/add` requiring a login redirect).
+- **API integration tests**: `CharacterRestControllerIntegrationTest`
+  (`src/test/java/.../presentation/controller/api/CharacterRestControllerIntegrationTest.java`)
+  — covers `GET /api/characters` (with search filters), `GET /api/characters/{id}`,
+  `GET /api/characters/{id}/battles`, including 404/406 cases.
+- **Role verification tests**: `CharacterServiceIntegrationTest`
+  (`src/test/java/.../business/service/CharacterServiceIntegrationTest.java`) — the
+  authorization requirement "only the owner or an admin may update/delete a character" is
+  enforced with `@PreAuthorize` on the **service** layer (`CharacterServiceImpl.deleteCharacter`,
+  `updateSwordName`, `updateCharacter`), so per the assignment it's tested there rather than on
+  the controller. For each of the three methods, tests cover: the owner succeeding, an `ADMIN`
+  succeeding, a different (non-owner) `USER` getting `AccessDeniedException`, and (for
+  `updateCharacter`) an anonymous caller getting `AccessDeniedException`.
+
+### Code coverage
+
+_Screenshot of the IntelliJ coverage tool window goes here (package names + tested classes
+visible)._
+
+### Two bugs found and fixed while writing these tests
+
+- `CharacterBattleRepository.deleteByCharacterId` / `deleteByBattleId` and
+  `CharacterRepository.updateSwordName` are `@Modifying` JPQL bulk statements. Without
+  `clearAutomatically = true`, the persistence context kept serving stale, already-deleted or
+  already-updated entities from its first-level cache after the bulk statement ran, which broke
+  a repository test (`TransientObjectException` on deleting a character with battles) and a new
+  service test (`updateSwordName` reading back the old sword name).
+- `SecurityConfig`'s `defaultAuthenticationEntryPointFor` only registered a JSON 401 entry point
+  scoped to `/api/**`. Because it was the only entry registered at that point, Spring Security
+  used it as the fallback for *every* unmatched request too (not just the ones the matcher
+  actually matched), so unauthenticated visits to protected MVC pages like `/characters/add`
+  sometimes got a raw JSON 401 instead of a redirect to `/login`, depending on the `Accept`
+  header. Fixed by explicitly registering a second, catch-all entry (`AnyRequestMatcher` →
+  `LoginUrlAuthenticationEntryPoint("/login")`) so the two entries are mutually exhaustive.

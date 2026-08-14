@@ -34,7 +34,7 @@ public interface CharacterRepository extends JpaRepository<Character, Integer> {
             "(SELECT COUNT(cb) FROM CharacterBattle cb WHERE cb.character = c) >= :minBattles ORDER BY c.id")
     List<Character> findByMinBattles(@Param("minBattles") int minBattles);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Swordsman s SET s.swordName = :swordName WHERE s.id = :id")
     void updateSwordName(@Param("id") int id, @Param("swordName") String swordName);
 }

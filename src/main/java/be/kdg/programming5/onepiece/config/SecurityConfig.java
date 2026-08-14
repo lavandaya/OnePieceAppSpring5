@@ -12,11 +12,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import org.springframework.http.MediaType;
@@ -54,14 +58,21 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
-                        (request, response, authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                            response.getWriter().write(
-                                    "{\"message\":\"Authentication is required to perform this action\"}");
-                        },
-                        request -> request.getRequestURI().startsWith("/api/")))
+                .exceptionHandling(ex -> {
+                    AuthenticationEntryPoint apiEntryPoint = (request, response, authException) -> {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        response.getWriter().write(
+                                "{\"message\":\"Authentication is required to perform this action\"}");
+                    };
+                    // Two entries so /api/** always gets JSON and every other path always
+                    // redirects to /login, regardless of insertion order or Accept header:
+                    // with only one matcher registered, Spring uses it as the entry point
+                    // for ALL unmatched requests too, not just the ones it matches.
+                    ex.defaultAuthenticationEntryPointFor(apiEntryPoint, new AntPathRequestMatcher("/api/**"));
+                    ex.defaultAuthenticationEntryPointFor(
+                            new LoginUrlAuthenticationEntryPoint("/login"), AnyRequestMatcher.INSTANCE);
+                })
 
                 .formLogin(form -> form
                         .loginPage("/login")
